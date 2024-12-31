@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_application_1/constants/Theme.dart';
 
 //widgets
@@ -9,110 +8,113 @@ import 'package:flutter_application_1/widgets/card-small.dart';
 import 'package:flutter_application_1/widgets/card-square.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 
-final Map<String, Map<String, dynamic>> homeCards = {
-  "Ice Cream": {
-    "title": "Hardly Anything Takes More Coura...",
-    "image":
-        "https://images.unsplash.com/photo-1539314171919-908b0cd96f03?crop=entropy&w=840&h=840&fit=crop",
-    "price": "180"
-  },
-  "Makeup": {
-    "title": "Find the cheapest deals on our range...",
-    "image":
-        "https://images.unsplash.com/photo-1515709980177-7a7d628c09ba?crop=entropy&w=840&h=840&fit=crop",
-    "price": "220"
-  },
-  "Coffee": {
-    "title": "Looking for Men's watches?",
-    "image":
-        "https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?crop=entropy&w=840&h=840&fit=crop",
-    "price": "40"
-  },
-  "Fashion": {
-    "title": "Curious Blossom Skin Care Kit.",
-    "image":
-        "https://images.unsplash.com/photo-1536303006682-2ee36ba49592?crop=entropy&w=840&h=840&fit=crop",
-    "price": "188"
-  },
-  "Argon": {
-    "title": "Adjust your watch to your outfit.",
-    "image":
-        "https://images.unsplash.com/photo-1491336477066-31156b5e4f35?crop=entropy&w=840&h=840&fit=crop",
-    "price": "180"
-  }
-};
 
 class Home extends StatelessWidget {
-  // final GlobalKey _scaffoldKey = new GlobalKey();
   @override
   Widget build(BuildContext context) {
+    // Obtener el ancho de la pantalla
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth =
+        (screenWidth - 48) / 2; // 48 = padding total (16*2 + 16 entre cards)
+
     return Scaffold(
-        appBar: Navbar(
-          title: "Home Farez",
-          searchBar: true,
-          categoryOne: "Categories",
-          categoryTwo: "Best Deals",
-        ),
-        backgroundColor: MaterialColors.bgColorScreen,
-        // key: _scaffoldKey,
-        drawer: MaterialDrawer(currentPage: "Home"),
-        body: Container(
-          padding: EdgeInsets.only(left: 16.0, right: 16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
+      appBar: Navbar(
+        title: "Traducctor",
+        searchBar: false,
+      ),
+      backgroundColor: MaterialColors.bgColorScreen,
+      drawer: MaterialDrawer(currentPage: "Home"),
+      body: Container(
+        padding: EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Card principal
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Container(
+                  height: 200, // Altura fija para el card principal
                   child: CardHorizontal(
-                      cta: "View article",
-                      title: homeCards["Ice Cream"]?['title'],
-                      img: homeCards["Ice Cream"]?['image'],
-                      tap: () {
-                        Navigator.pushReplacementNamed(context, '/pro');
-                      }),
-                ),
-                SizedBox(height: 8.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CardSmall(
-                        cta: "View article",
-                        title: homeCards["Makeup"]?['title'],
-                        img: homeCards["Makeup"]?['image'],
-                        tap: () {
-                          Navigator.pushReplacementNamed(context, '/pro');
-                        }),
-                    CardSmall(
-                        cta: "View article",
-                        title: homeCards["Coffee"]?['title'],
-                        img: homeCards["Coffee"]?['image'],
-                        tap: () {
-                          Navigator.pushReplacementNamed(context, '/pro');
-                        })
-                  ],
-                ),
-                SizedBox(height: 8.0),
-                CardHorizontal(
-                    cta: "View article",
-                    title: homeCards["Fashion"]?['title'],
-                    img: homeCards["Fashion"]?['image'],
+                    cta: "Capturar Gestos",
+                    title: "Activa la cámara para traducir",
+                    img: 'assets/images/camera_capture.png',
                     tap: () {
-                      Navigator.pushReplacementNamed(context, '/pro');
-                    }),
-                SizedBox(height: 8.0),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 32.0),
-                  child: CardSquare(
-                      cta: "View article",
-                      title: homeCards["Argon"]?['title'],
-                      img: homeCards["Argon"]?['image'],
+                      Navigator.pushNamed(context, '/camara');
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+
+              // Primera fila de cards
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: cardWidth,
+                    height: 180, // Altura fija para cards pequeños
+                    child: CardSmall(
+                      cta: "Señas a Texto",
+                      title: "Convierte lenguaje de señas a texto",
+                      img: "assets/images/signs_to_text.png",
                       tap: () {
-                        Navigator.pushReplacementNamed(context, '/pro');
-                      }),
-                )
-              ],
-            ),
+                        Navigator.pushNamed(context, '/signToText');
+                      },
+                    ),
+                  ),
+                  Container(
+                    width: cardWidth,
+                    height: 180,
+                    child: CardSmall(
+                      cta: "Texto a Señas",
+                      title: "Muestra señas con un avatar",
+                      img: "assets/images/text_to_signs.jpeg",
+                      tap: () {
+                        Navigator.pushNamed(context, '/textToSign');
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+
+              // Audio a Texto card centrado
+              Center(
+                child: Container(
+                  width: cardWidth,
+                  height: 180,
+                  child: CardSmall(
+                    cta: "Audio a Texto",
+                    title: "Transcribe audio a texto",
+                    img: "assets/images/audio_to_text.jpeg",
+                    tap: () {
+                      Navigator.pushNamed(context, '/audioToText');
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+
+              // Card de historial
+              Padding(
+                padding: const EdgeInsets.only(bottom: 32.0),
+                child: Container(
+                  height: 200, // Altura fija para el card cuadrado
+                  child: CardSquare(
+                    cta: "Historial",
+                    title: "Consulta traducciones pasadas",
+                    img: "assets/images/history.png",
+                    tap: () {
+                      Navigator.pushNamed(context, '/history');
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
