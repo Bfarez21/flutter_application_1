@@ -84,42 +84,6 @@ class MaterialDrawer extends StatelessWidget {
                 title: "Home",
                 isSelected: currentPage == "Home" ? true : false),
             DrawerTile(
-                icon: Icons.face,
-                onTap: () {
-                  if (currentPage != "Woman")
-                    Navigator.pushReplacementNamed(context, '/woman');
-                },
-                iconColor: Colors.black,
-                title: "Woman",
-                isSelected: currentPage == "Woman" ? true : false),
-            DrawerTile(
-                icon: Icons.tag_faces,
-                onTap: () {
-                  if (currentPage != "Man")
-                    Navigator.pushReplacementNamed(context, '/man');
-                },
-                iconColor: Colors.black,
-                title: "Man",
-                isSelected: currentPage == "Man" ? true : false),
-            DrawerTile(
-                icon: Icons.child_friendly,
-                onTap: () {
-                  if (currentPage != "Kids")
-                    Navigator.pushReplacementNamed(context, '/kids');
-                },
-                iconColor: Colors.black,
-                title: "Kids",
-                isSelected: currentPage == "Kids" ? true : false),
-            DrawerTile(
-                icon: Icons.grain,
-                onTap: () {
-                  if (currentPage != "New Collection")
-                    Navigator.pushReplacementNamed(context, '/newcollection');
-                },
-                iconColor: Colors.black,
-                title: "New Collection",
-                isSelected: currentPage == "New Collection" ? true : false),
-            DrawerTile(
                 icon: Icons.settings_input_component,
                 onTap: () {
                   if (currentPage != "Components")

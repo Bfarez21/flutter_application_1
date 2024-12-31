@@ -19,7 +19,7 @@ class Home extends StatelessWidget {
 
     return Scaffold(
       appBar: Navbar(
-        title: "Traducctor",
+        title: "Traductor",
         searchBar: false,
       ),
       backgroundColor: MaterialColors.bgColorScreen,

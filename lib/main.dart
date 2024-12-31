@@ -15,9 +15,9 @@ class MaterialKitPROFlutter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: "Material Kit PRO Flutter", // titulo 
+        title: "Traductor Lengua de Señas", // titulo 
         debugShowCheckedModeBanner: false,
-        initialRoute: "/onboarding",
+        initialRoute: "/onboarding",  //vista principal
         routes: <String, WidgetBuilder>{
           "/onboarding": (BuildContext context) => new Onboarding(),
           "/home": (BuildContext context) => new Home(),
