@@ -9,6 +9,7 @@ import 'package:flutter_application_1/screens/onboarding.dart';
 import 'package:flutter_application_1/screens/signIn.dart';
 // vistas navegacion
 import 'package:flutter_application_1/screens/Camera.dart';
+import 'package:flutter_application_1/screens/Historial.dart';
 void main() => runApp(MaterialKitPROFlutter());
 
 class MaterialKitPROFlutter extends StatelessWidget {
@@ -25,7 +26,8 @@ class MaterialKitPROFlutter extends StatelessWidget {
           "/profile": (BuildContext context) => new Profile(),
           "/settings": (BuildContext context) => new Settings(),
           "/signin": (BuildContext context) => new Login(),
-          "/camara":(BuildContext context) => new Camara()
+          "/camara":(BuildContext context) => new Camara(),
+          "/historial": (BuildContext context) => new HistorialView()
         });
         
   }
