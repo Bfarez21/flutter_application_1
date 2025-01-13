@@ -3,7 +3,6 @@ import 'package:flutter_application_1/constants/Theme.dart';
 
 // Widgets personalizados
 import 'package:flutter_application_1/widgets/navbar.dart';
-import 'package:flutter_application_1/widgets/table-cell.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 
 class Settings extends StatefulWidget {
@@ -12,130 +11,80 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  bool useCamera = true;
-  bool enableNotifications = true;
-  bool saveTranslations = false;
-
-  @override
-  void initState() {
-    super.initState();
-    useCamera = true;
-    enableNotifications = true;
-    saveTranslations = false;
-  }
-
-  Widget _buildSectionTitle(String title, {double topPadding = 16.0}) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.only(top: topPadding),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionSubtitle(String subtitle) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Text(
-          subtitle,
-          style: TextStyle(color: MaterialColors.caption, fontSize: 14),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSwitchRow(String title, bool value, ValueChanged<bool> onChanged) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title, style: TextStyle(color: Colors.black)),
-        Switch.adaptive(
-          value: value,
-          onChanged: onChanged,
-          activeColor: MaterialColors.primary,
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: Navbar(
-        title: "Configuración",
+        title: "Ajustes",
       ),
       drawer: MaterialDrawer(currentPage: "Settings"),
       backgroundColor: MaterialColors.bgColorScreen,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Configuración General"),
-              _buildSectionSubtitle("Ajusta las preferencias generales de la aplicación"),
-              _buildSwitchRow(
-                "Habilitar Cámara para Traducción de Gestos",
-                useCamera,
-                (newValue) => setState(() => useCamera = newValue),
-              ),
-              _buildSwitchRow(
-                "Habilitar Notificaciones",
-                enableNotifications,
-                (newValue) => setState(() => enableNotifications = newValue),
-              ),
-              _buildSwitchRow(
-                "Guardar Traducciones en el Historial",
-                saveTranslations,
-                (newValue) => setState(() => saveTranslations = newValue),
-              ),
-              SizedBox(height: 36.0),
-              _buildSectionTitle("Configuración de Traducción"),
-              _buildSectionSubtitle("Gestiona tus opciones de traducción"),
-              TableCellSettings(
-                title: "Preferencias de Idioma",
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/language-settings');
-                },
-              ),
-              TableCellSettings(
-                title: "Opciones de Entrada de Audio",
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/audio-settings');
-                },
-              ),
-              SizedBox(height: 36.0),
-              _buildSectionTitle("Configuración Avanzada"),
-              _buildSectionSubtitle("Personaliza características avanzadas"),
-              TableCellSettings(
-                title: "Gestionar Permisos de la Cámara",
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/camera-permissions');
-                },
-              ),
-              TableCellSettings(
-                title: "Privacidad y Uso de Datos",
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/privacy');
-                },
-              ),
-              TableCellSettings(
-                title: "Acerca de Esta Aplicación",
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/about');
-                },
-              ),
+              // Sección Cuenta
+              _buildSectionHeader("Cuenta"),
+              _buildMenuItem(Icons.person, "Editar perfil", onTap: () {
+                // Acción para Editar perfil
+              }),
+              _buildMenuItem(Icons.notifications, "Notificaciones", onTap: () {
+                // Acción para Notificaciones
+              }),
+              SizedBox(height: 16.0),
+
+              // Sección Acerca de
+              _buildSectionHeader("Acerca de"),
+              _buildMenuItem(Icons.credit_card, "Mi suscripción", onTap: () {
+                // Acción para Mi suscripción
+              }),
+              _buildMenuItem(Icons.help, "Ayuda y Soporte", onTap: () {
+                // Acción para Ayuda y Soporte
+              }),
+              _buildMenuItem(Icons.info, "Políticas", onTap: () {
+                // Acción para Políticas
+              }),
+              SizedBox(height: 16.0),
+
+              // Sección Actions
+              _buildSectionHeader("Actions"),
+              _buildMenuItem(Icons.flag, "Reportar un problema", onTap: () {
+                // Acción para Reportar un problema
+              }),
+              _buildMenuItem(Icons.logout, "Log out", onTap: () {
+                // Acción para Log out
+              }),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(IconData icon, String title, {VoidCallback? onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.black),
+      title: Text(
+        title,
+        style: TextStyle(fontSize: 16.0, color: Colors.black),
+      ),
+      onTap: onTap,
     );
   }
 }
