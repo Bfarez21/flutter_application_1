@@ -13,12 +13,10 @@ class ModeloIA {
       // Cargar el modelo TFLite desde los activos
       _interpreter = await Interpreter.fromAsset(modelPath);
 
-      // Leer las etiquetas desde el archivo de activos
+      // Leer las etiquetas desde el archivo de activosxs
       final String labelsData = await rootBundle.loadString(labelsPath);
-      _labels = labelsData
-          .split('\n')
-          .where((label) => label.isNotEmpty)
-          .toList();
+      _labels =
+          labelsData.split('\n').where((label) => label.isNotEmpty).toList();
     } catch (e) {
       throw Exception('Error al cargar modelo o etiquetas: $e');
     }
