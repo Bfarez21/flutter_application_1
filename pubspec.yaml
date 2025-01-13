@@ -71,6 +71,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - assets/images/google.png
+    - assets/images/fondoManos.png
     - assets/images/camera_capture.png
     - assets/modeloTflite/model_unquant.tflite
     - assets/modeloTflite/labels.txt

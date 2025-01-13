@@ -60,60 +60,9 @@ class Profile extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text("Rachel Brown",
+                    child: Text("Nombre Apellido",
                         style: TextStyle(fontSize: 28, color: Colors.white)),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 6),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: MaterialColors.label),
-                                child: Text("Pro",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16))),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Text("Seller",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16)),
-                          ),
-                          Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 4.0),
-                                child: Text("4.8",
-                                    style: TextStyle(
-                                        color: MaterialColors.warning,
-                                        fontSize: 16)),
-                              ),
-                              Icon(Icons.star_border,
-                                  color: MaterialColors.warning, size: 20)
-                            ],
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Icon(Icons.pin_drop,
-                                color: MaterialColors.muted),
-                          ),
-                          Text("Los Angeles, CA",
-                              style: TextStyle(color: MaterialColors.muted))
-                        ],
-                      )
-                    ],
-                  )
                 ],
               ),
             ),
@@ -148,26 +97,13 @@ class Profile extends StatelessWidget {
                           children: [
                             Column(
                               children: [
-                                Text("36",
+                                Text("25",
                                     style:
                                         TextStyle(fontWeight: FontWeight.w600)),
                                 SizedBox(
                                   height: 6,
                                 ),
-                                Text("Orders",
-                                    style:
-                                        TextStyle(color: MaterialColors.muted))
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text("5",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w600)),
-                                SizedBox(
-                                  height: 6,
-                                ),
-                                Text("Bids & Offers",
+                                Text("Traducciónes",
                                     style:
                                         TextStyle(color: MaterialColors.muted))
                               ],
@@ -180,14 +116,26 @@ class Profile extends StatelessWidget {
                                 SizedBox(
                                   height: 6,
                                 ),
-                                Text("Messages",
+                                Text("Idiomas",
+                                    style:
+                                        TextStyle(color: MaterialColors.muted))
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Icon(Icons.pin_drop,
+                                color: MaterialColors.muted),
+                                SizedBox(
+                                  height: 6,
+                                ),
+                                Text("Estadíticas",
                                     style:
                                         TextStyle(color: MaterialColors.muted))
                               ],
                             ),
                           ],
                         ),
-                        PhotoAlbum(imgArray: imgArray)
+                        PhotoAlbum(),
                       ],
                     ),
                   )),

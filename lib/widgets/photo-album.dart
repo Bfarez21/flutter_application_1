@@ -1,48 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/constants/Theme.dart';
 
 class PhotoAlbum extends StatelessWidget {
-  final List<String>? imgArray;
-
-  PhotoAlbum({@required this.imgArray});
+  final List<String> textos = [
+    "Hola...",
+    "Gracias",
+    "Sí",
+    "No",
+    "Por favor",
+    "Ayuda",
+    "Casa",
+    "Adiós",
+    "Hospital",
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Recently viewed",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14.0,
-              ),
-            ),
-            Text(
-              "View All",
-              style: TextStyle(color: MaterialColors.primary, fontSize: 12.0),
-            ),
-          ],
+        // Título de la sección
+        Text(
+          "Traducciones recientes",
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16.0,
+            decoration: TextDecoration.underline,
+          ),
         ),
+        SizedBox(height: 10),
+        // Grid con los elementos
         SizedBox(
           height: 250,
           child: GridView.count(
-              primary: false,
-              padding: EdgeInsets.symmetric(vertical: 15.0),
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              crossAxisCount: 3,
-              children: (imgArray??[])
-                  .map((item) => Container(
-                      height: 100,
+            primary: false,
+            padding: EdgeInsets.symmetric(vertical: 15.0),
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            crossAxisCount: 3,
+            children: textos
+                .map((texto) => Container(
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                          image: DecorationImage(
-                              image: NetworkImage(item), fit: BoxFit.cover))))
-                  .toList()),
-        )
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      ),
+                      child: Center(
+                        child: Text(
+                          texto,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
       ],
     );
   }

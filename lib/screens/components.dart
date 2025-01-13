@@ -694,7 +694,7 @@ class _ComponentsState extends State<Components> {
                           fontSize: 16)),
                 ),
               ),
-              PhotoAlbum(imgArray: albumArray),
+              PhotoAlbum(),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, top: 32, bottom: 32),
                 child: Align(

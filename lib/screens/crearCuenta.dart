@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
-class Login extends StatefulWidget {
+class CrearCuenta extends StatefulWidget {
   @override
-  _LoginState createState() => _LoginState();
+  _CrearCuentaState createState() => _CrearCuentaState();
 }
 
-class _LoginState extends State<Login> {
+class _CrearCuentaState extends State<CrearCuenta> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
-  final TextEditingController _emailController = TextEditingController();
+  bool _obscureRepeatPassword = true;
+
+  final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _repeatPasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -18,30 +22,19 @@ class _LoginState extends State<Login> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: MediaQuery.of(context).size.width <= 600
-            ? BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/images/fondoManos.png"),
-                  fit: BoxFit.cover,
-                ),
-              )
-            : BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF1E88E5), // Azul
-                    Color(0xFF1976D2), // Azul más oscuro
-                  ],
-                ),
-              ),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/fondoManos.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
                 children: [
-                  SizedBox(height: 30), // Espacio superior ajustable
+                  SizedBox(height: 30),
                   // App Logo and Title
                   Column(
                     children: [
@@ -72,7 +65,7 @@ class _LoginState extends State<Login> {
                       ),
                       SizedBox(height: 20),
                       Text(
-                        'Inicia sesión',
+                        'Crea tu cuenta',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w400,
@@ -81,15 +74,15 @@ class _LoginState extends State<Login> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 30), // Espacio entre logo y formulario
+                  SizedBox(height: 30),
                   // Formulario
                   Form(
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Email Field
+                        // Usuario Field
                         TextFormField(
-                          controller: _emailController,
+                          controller: _userController,
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Usuario',
@@ -115,13 +108,13 @@ class _LoginState extends State<Login> {
                           },
                         ),
                         SizedBox(height: 16),
-                        // Password Field
+                        // Contraseña Field
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
-                            hintText: '********',
+                            hintText: 'Contraseña',
                             hintStyle: TextStyle(color: Colors.white70),
                             prefixIcon: Icon(Icons.lock, color: Colors.white70),
                             suffixIcon: IconButton(
@@ -155,120 +148,115 @@ class _LoginState extends State<Login> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 8),
-                        // Forgot Password Link
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              // Add forgot password logic
-                            },
-                            child: Text(
-                              'Olvidé mi contraseña',
-                              style: TextStyle(color: Colors.white70),
+                        SizedBox(height: 16),
+                        // Repetir Contraseña Field
+                        TextFormField(
+                          controller: _repeatPasswordController,
+                          obscureText: _obscureRepeatPassword,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Repetir contraseña',
+                            hintStyle: TextStyle(color: Colors.white70),
+                            prefixIcon: Icon(Icons.lock, color: Colors.white70),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureRepeatPassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.white70,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureRepeatPassword =
+                                      !_obscureRepeatPassword;
+                                });
+                              },
                             ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide(color: Colors.white70),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.1),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor repita su contraseña';
+                            } else if (value != _passwordController.text) {
+                              return 'Las contraseñas no coinciden';
+                            }
+                            return null;
+                          },
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 30), // Espacio entre formulario y botones
-                  // Botones
-                  // Crear cuenta y Google Sign In
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Botón de "Iniciar Sesión"
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              // Lógica para iniciar sesión
-                              Navigator.pushReplacementNamed(context, '/home');
-                            }
-                          },
-                          child: Text(
-                            'Iniciar Sesión',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                  SizedBox(height: 30),
+                  // Botón Crear Cuenta
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      SizedBox(height: 16), // Espacio entre los botones
-
-                      // Crear cuenta
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '¿No tienes una cuenta?',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              // Lógica para crear cuenta
-                              Navigator.pushReplacementNamed(
-                                  context, '/crearCuenta');
-                            },
-                            child: Text(
-                              'Crear cuenta',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                          height:
-                              16), // Espacio entre el enlace "Crear cuenta" y Google Sign In
-
-                      // Botón de Google Sign In
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 21, 83, 134),
-                            side: BorderSide(color: Colors.white),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () {
-                            // Lógica para iniciar sesión con Google
-                          },
-                          icon: Image.asset(
-                            'assets/images/google.png',
-                            height: 24,
-                          ),
-                          label: Text(
-                            'Iniciar sesión con Google',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          // Lógica para crear cuenta
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Cuenta creada con éxito')),
+                          );
+                          Navigator.pushReplacementNamed(context, '/signin');
+                        }
+                      },
+                      child: Text(
+                        'Crear cuenta',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-
-                  SizedBox(height: 30), // Espacio inferior ajustable
+                  SizedBox(height: 16),
+                  // Botón Crear cuenta con Google
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 21, 83, 134),
+                        side: BorderSide(color: Colors.white),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        // Lógica para crear cuenta con Google
+                      },
+                      icon: Image.asset(
+                        'assets/images/google.png',
+                        height: 24,
+                      ),
+                      label: Text(
+                        'Crear cuenta con Google',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30),
                 ],
               ),
             ),
@@ -280,8 +268,9 @@ class _LoginState extends State<Login> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _userController.dispose();
     _passwordController.dispose();
+    _repeatPasswordController.dispose();
     super.dispose();
   }
 }
