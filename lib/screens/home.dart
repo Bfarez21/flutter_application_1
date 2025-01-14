@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/widgets/navbar.dart';
 import 'package:flutter_application_1/constants/Theme.dart';
+import 'package:camera/camera.dart';
 
 //widgets
 import 'package:flutter_application_1/widgets/navbar.dart';
@@ -30,6 +31,33 @@ class Home extends StatefulWidget {
 
 class _HomeScreenState extends State<Home> {
   bool isReversed = false;
+  CameraController? _cameraController;
+  List<CameraDescription>? cameras;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeCamera();
+  }
+
+  Future<void> initializeCamera() async {
+    cameras = await availableCameras();
+    if (cameras != null && cameras!.isNotEmpty) {
+      _cameraController = CameraController(
+        cameras!.firstWhere(
+            (camera) => camera.lensDirection == CameraLensDirection.front),
+        ResolutionPreset.medium,
+      );
+      await _cameraController!.initialize();
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
+  }
 
   void toggleLayout() {
     setState(() {
@@ -71,8 +99,7 @@ class _HomeScreenState extends State<Home> {
                     children: [
                       DropdownButton<String>(
                         value: "Sign",
-                        underline:
-                            SizedBox(), // Elimina la línea debajo del texto
+                        underline: SizedBox(),
                         items: [
                           DropdownMenuItem(
                             value: "Sign",
@@ -106,8 +133,7 @@ class _HomeScreenState extends State<Home> {
                       ),
                       DropdownButton<String>(
                         value: "Español",
-                        underline:
-                            SizedBox(), // Elimina la línea debajo del texto
+                        underline: SizedBox(),
                         items: [
                           DropdownMenuItem(
                             value: "Sign",
@@ -132,7 +158,6 @@ class _HomeScreenState extends State<Home> {
                   ),
                 ),
                 SizedBox(height: 16.0),
-                // Cuadro de texto
                 Container(
                   margin: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 8.0),
@@ -146,14 +171,13 @@ class _HomeScreenState extends State<Home> {
                       border: InputBorder.none,
                       hintText: '',
                     ),
-                    maxLines: 5, // Define el tamaño del cuadro de texto
+                    maxLines: 5,
                   ),
                 ),
-                // Imagen debajo del cuadro de texto
                 Expanded(
                   child: Center(
                     child: Icon(
-                      Icons.back_hand_rounded, // Icono de imagen
+                      Icons.back_hand_rounded,
                       size: 150,
                       color: Colors.white.withOpacity(0.7),
                     ),
@@ -163,18 +187,16 @@ class _HomeScreenState extends State<Home> {
             )
           : Column(
               children: [
-                // Barra de selección original
                 Container(
                   margin: const EdgeInsets.all(16.0),
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8.0, vertical: 4.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(30), // Bordes redondeados
+                    borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1), // Sombra ligera
+                        color: Colors.black.withOpacity(0.1),
                         blurRadius: 5,
                         offset: Offset(0, 2),
                       ),
@@ -185,8 +207,7 @@ class _HomeScreenState extends State<Home> {
                     children: [
                       DropdownButton<String>(
                         value: "Español",
-                        underline:
-                            SizedBox(), // Elimina la línea debajo del texto
+                        underline: SizedBox(),
                         items: [
                           DropdownMenuItem(
                             value: "Sign",
@@ -220,8 +241,7 @@ class _HomeScreenState extends State<Home> {
                       ),
                       DropdownButton<String>(
                         value: "Sign",
-                        underline:
-                            SizedBox(), // Elimina la línea debajo del texto
+                        underline: SizedBox(),
                         items: [
                           DropdownMenuItem(
                             value: "Sign",
@@ -248,10 +268,22 @@ class _HomeScreenState extends State<Home> {
                 SizedBox(height: 16.0),
                 Expanded(
                   child: Center(
-                    child: Icon(
-                      Icons.camera_alt,
-                      size: 120,
-                      color: Colors.white.withOpacity(0.7),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(
+                          horizontal: 20.0), // Espacio lateral
+                      height: MediaQuery.of(context).size.height *
+                          0.5, // Mayor altura
+                      child: _cameraController != null &&
+                              _cameraController!.value.isInitialized
+                          ? AspectRatio(
+                              aspectRatio: _cameraController!.value.aspectRatio,
+                              child: CameraPreview(_cameraController!),
+                            )
+                          : Icon(
+                              Icons.camera_alt,
+                              size: 120,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
                     ),
                   ),
                 ),
@@ -264,7 +296,7 @@ class _HomeScreenState extends State<Home> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: SizedBox(
-                    height: 160, // Aumenté la altura del cuadro
+                    height: 160,
                     child: Center(
                       child: Text(
                         "",
