@@ -42,6 +42,8 @@ dependencies:
   camera: ^0.10.0+3
   google_sign_in: ^5.4.2  # Agregar el paquete google_sign_in
   provider: ^6.1.2
+  firebase_auth: ^4.1.0  # Ejemplo para agregar Firebase Auth
+  cloud_firestore: ^4.5.0  # Ejemplo para agregar Firestore
 
 
 

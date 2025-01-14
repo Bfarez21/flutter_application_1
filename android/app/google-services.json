@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "105200073019",
+    "project_id": "signspeak-ai",
+    "storage_bucket": "signspeak-ai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:105200073019:android:52d592e95936556ad35f1e",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "105200073019-41br8gloqnrtp0l9fk7tecl4e1qfrvmd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_application_1",
+            "certificate_hash": "dbae16355b97882cc6c93c3657c46bed4418dee0"
+          }
+        },
+        {
+          "client_id": "105200073019-d68mbjb2sqaa4nmv04u8j098rdgqq0kg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_DjIChFuhrNY7hmp97Tnvt3liig3377U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "105200073019-d68mbjb2sqaa4nmv04u8j098rdgqq0kg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

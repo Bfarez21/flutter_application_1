@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_application_1/screens/home.dart';
+import 'package:flutter_application_1/services/auth_service.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -10,6 +14,48 @@ class _LoginState extends State<Login> {
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  // Función para iniciar sesión con Google
+  Future<void> _signInWithGoogle(BuildContext context) async {
+    try {
+      await _authService.handleSignIn();
+      if (FirebaseAuth.instance.currentUser != null) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al iniciar sesión con Google: $e')),
+      );
+    }
+  }
+
+  // Función para iniciar sesión con email y contraseña
+  Future<void> _signInWithEmailAndPassword(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final UserCredential userCredential = 
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+        
+        if (userCredential.user != null) {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      } on FirebaseAuthException catch (e) {
+        String errorMessage = 'Ocurrió un error al iniciar sesión';
+        if (e.code == 'user-not-found') {
+          errorMessage = 'No existe un usuario con este correo';
+        } else if (e.code == 'wrong-password') {
+          errorMessage = 'Contraseña incorrecta';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +76,8 @@ class _LoginState extends State<Login> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xFF1E88E5), // Azul
-                    Color(0xFF1976D2), // Azul más oscuro
+                    Color(0xFF1E88E5),
+                    Color(0xFF1976D2),
                   ],
                 ),
               ),
@@ -41,8 +87,7 @@ class _LoginState extends State<Login> {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
                 children: [
-                  SizedBox(height: 30), // Espacio superior ajustable
-                  // App Logo and Title
+                  SizedBox(height: 30),
                   Column(
                     children: [
                       Text(
@@ -54,7 +99,6 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                       SizedBox(height: 20),
-                      // Hand Sign Image
                       Container(
                         height: 120,
                         width: 120,
@@ -81,21 +125,18 @@ class _LoginState extends State<Login> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 30), // Espacio entre logo y formulario
-                  // Formulario
+                  SizedBox(height: 30),
                   Form(
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Email Field
                         TextFormField(
                           controller: _emailController,
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
-                            hintText: 'Usuario',
+                            hintText: 'Correo electrónico',
                             hintStyle: TextStyle(color: Colors.white70),
-                            prefixIcon:
-                                Icon(Icons.person, color: Colors.white70),
+                            prefixIcon: Icon(Icons.person, color: Colors.white70),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30),
                               borderSide: BorderSide(color: Colors.white70),
@@ -109,13 +150,15 @@ class _LoginState extends State<Login> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Por favor ingrese su usuario';
+                              return 'Por favor ingrese su correo electrónico';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Por favor ingrese un correo electrónico válido';
                             }
                             return null;
                           },
                         ),
                         SizedBox(height: 16),
-                        // Password Field
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
@@ -152,16 +195,18 @@ class _LoginState extends State<Login> {
                             if (value == null || value.isEmpty) {
                               return 'Por favor ingrese su contraseña';
                             }
+                            if (value.length < 6) {
+                              return 'La contraseña debe tener al menos 6 caracteres';
+                            }
                             return null;
                           },
                         ),
                         SizedBox(height: 8),
-                        // Forgot Password Link
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
                             onPressed: () {
-                              // Add forgot password logic
+                              // Implementar lógica de recuperación de contraseña
                             },
                             child: Text(
                               'Olvidé mi contraseña',
@@ -172,13 +217,10 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 30), // Espacio entre formulario y botones
-                  // Botones
-                  // Crear cuenta y Google Sign In
+                  SizedBox(height: 30),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Botón de "Iniciar Sesión"
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -189,25 +231,18 @@ class _LoginState extends State<Login> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              // Lógica para iniciar sesión
-                              Navigator.pushReplacementNamed(context, '/home');
-                            }
-                          },
+                          onPressed: () => _signInWithEmailAndPassword(context),
                           child: Text(
                             'Iniciar Sesión',
                             style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
+                              color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(height: 16), // Espacio entre los botones
-
-                      // Crear cuenta
+                      SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -217,7 +252,6 @@ class _LoginState extends State<Login> {
                           ),
                           TextButton(
                             onPressed: () {
-                              // Lógica para crear cuenta
                               Navigator.pushReplacementNamed(
                                   context, '/crearCuenta');
                             },
@@ -231,26 +265,19 @@ class _LoginState extends State<Login> {
                           ),
                         ],
                       ),
-                      SizedBox(
-                          height:
-                              16), // Espacio entre el enlace "Crear cuenta" y Google Sign In
-
-                      // Botón de Google Sign In
+                      SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 21, 83, 134),
+                            backgroundColor: Color.fromARGB(255, 21, 83, 134),
                             side: BorderSide(color: Colors.white),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          onPressed: () {
-                            // Lógica para iniciar sesión con Google
-                          },
+                          onPressed: () => _signInWithGoogle(context),
                           icon: Image.asset(
                             'assets/images/google.png',
                             height: 24,
@@ -267,8 +294,7 @@ class _LoginState extends State<Login> {
                       ),
                     ],
                   ),
-
-                  SizedBox(height: 30), // Espacio inferior ajustable
+                  SizedBox(height: 30),
                 ],
               ),
             ),

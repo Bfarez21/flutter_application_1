@@ -1,3 +1,18 @@
+buildscript {
+    ext {
+        // Define la versión de Kotlin aquí
+        kotlin_version = '1.8.0'  // O la versión más reciente que estés usando
+    }
+    repositories {
+        google()  // Repositorio para Google Services
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.google.gms:google-services:4.4.2' // Asegúrate de que la versión sea la correcta
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -9,6 +24,7 @@ rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
