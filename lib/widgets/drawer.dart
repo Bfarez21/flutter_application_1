@@ -1,130 +1,183 @@
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-// Definición de la clase principal como StatelessWidget
-class MaterialDrawer extends StatelessWidget {
-  // Propiedades de la clase
-  final String currentPage;            // Página actual para resaltar en el menú
-  final GoogleSignInAccount? user;     // Datos del usuario de Google
-  
-  // Colores personalizados para toda la aplicación
+class MaterialDrawer extends StatefulWidget {
+  final String currentPage;
+
   static const Color primaryBlue = Color(0xFF2196F3);
   static const Color darkBlue = Color(0xFF1565C0);
   static const Color lightBlue = Color(0xFFBBDEFB);
 
-  // Constructor de la clase
-  MaterialDrawer({this.currentPage = "", this.user});
+  MaterialDrawer({this.currentPage = ""});
+
+  @override
+  _MaterialDrawerState createState() => _MaterialDrawerState();
+}
+
+class _MaterialDrawerState extends State<MaterialDrawer> {
+  User? currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    currentUser = FirebaseAuth.instance.currentUser;
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (mounted) {
+        setState(() {
+          currentUser = user;
+        });
+      }
+    });
+  }
+
+  // Función para calcular tamaños responsivos con límites
+  double getResponsiveSize(double size, double min, double max) {
+    return size.clamp(min, max);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+    final bool isWeb = screenSize.width > 600; // Detectar si es web
+
+    // Calcular tamaños con límites
+    final double drawerWidth = isWeb 
+        ? 320.0 // Ancho fijo para web
+        : screenSize.width * 0.85; // 85% para móvil
+    
+    final double nameFontSize = getResponsiveSize(
+      drawerWidth * 0.05,
+      16.0, // mínimo 16px
+      24.0  // máximo 24px
+    );
+    
+    final double emailFontSize = getResponsiveSize(
+      drawerWidth * 0.035,
+      14.0, // mínimo 14px
+      18.0  // máximo 18px
+    );
+
+    final double avatarRadius = getResponsiveSize(
+      screenSize.width * 0.1,
+      30.0,  // mínimo 30px
+      50.0   // máximo 50px
+    );
+
     return Drawer(
       child: Container(
-        // Decoración con gradiente para el fondo del drawer
+        width: drawerWidth,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [darkBlue, Colors.white],
+            colors: [MaterialDrawer.darkBlue, Colors.white],
             stops: [0.3, 0.3],
           ),
         ),
         child: Column(
           children: [
-            // SECCIÓN 1: HEADER DEL USUARIO
-            UserAccountsDrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-              ),
-              // Widget para la foto de perfil
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: lightBlue,
-                // Manejo condicional de la imagen de perfil
-                backgroundImage: user?.photoUrl != null
-                    ? NetworkImage(user!.photoUrl!)
-                    : const AssetImage('assets/default_profile.png') as ImageProvider,
-                radius: 50,
-              ),
-              // Nombre del usuario desde Google Sign In
-              accountName: Text(
-                user?.displayName ?? "Usuario",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              // Email del usuario desde Google Sign In
-              accountEmail: Text(
-                user?.email ?? "",
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
+            SafeArea(
+              child: Container(
+                padding: EdgeInsets.all(16),
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: MaterialDrawer.lightBlue,
+                      backgroundImage: currentUser?.photoURL != null
+                          ? NetworkImage(currentUser!.photoURL!)
+                          : const AssetImage('assets/default_profile.png') as ImageProvider,
+                      radius: avatarRadius,
+                    ),
+                    SizedBox(height: 16),
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth: isWeb ? 280 : double.infinity,
+                      ),
+                      child: Text(
+                        currentUser?.displayName ?? "Usuario",
+                        style: TextStyle(
+                          fontSize: nameFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth: isWeb ? 280 : double.infinity,
+                      ),
+                      child: Text(
+                        currentUser?.email ?? "",
+                        style: TextStyle(
+                          fontSize: emailFontSize,
+                          color: Colors.white70,
+                        ),
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            
-            // SECCIÓN 2: MENÚ DE OPCIONES
             Expanded(
               child: Container(
                 color: Colors.white,
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: isWeb ? 8 : 4,
+                  ),
                   children: [
-                    // Opción de Inicio
                     _buildMenuItem(
                       context: context,
                       icon: Icons.home_rounded,
                       title: "Inicio",
                       route: '/home',
-                      isSelected: currentPage == "Home",
+                      isSelected: widget.currentPage == "Home",
+                      isWeb: isWeb,
                     ),
-                    
-                    // Opción de Historial
                     _buildMenuItem(
                       context: context,
                       icon: Icons.history_rounded,
                       title: "Historial",
                       route: '/historial',
-                      isSelected: currentPage == "Historial",
+                      isSelected: widget.currentPage == "Historial",
+                      isWeb: isWeb,
                     ),
-                    
-                    // Opción de Perfil
                     _buildMenuItem(
                       context: context,
                       icon: Icons.person_rounded,
                       title: "Perfil",
                       route: '/profile',
-                      isSelected: currentPage == "Perfil",
+                      isSelected: widget.currentPage == "Perfil",
+                      isWeb: isWeb,
                     ),
-
-                    // Opción de Configuraciones (Nueva)
                     _buildMenuItem(
                       context: context,
                       icon: Icons.settings_rounded,
                       title: "Configuraciones",
                       route: '/settings',
-                      isSelected: currentPage == "Configuraciones",
+                      isSelected: widget.currentPage == "Configuraciones",
+                      isWeb: isWeb,
                     ),
-
-                    // Separador antes de las opciones de cierre
                     const Divider(height: 32),
-
-                    // Opción de Cerrar Sesión
                     _buildMenuItem(
                       context: context,
                       icon: Icons.logout_rounded,
                       title: "Cerrar Sesión",
                       route: '/signin',
                       isSelected: false,
-                      // IMPORTANTE: Esta es la función de cierre de sesión
+                      isWeb: isWeb,
                       onTap: () async {
                         try {
-                          // 1. Cierra la sesión de Google
-                          await GoogleSignIn().signOut();
-                          // 2. Redirecciona a la página de inicio de sesión
+                          await FirebaseAuth.instance.signOut();
                           Navigator.pushReplacementNamed(context, '/signin');
                         } catch (error) {
-                          // 3. Maneja cualquier error durante el cierre de sesión
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Error al cerrar sesión'),
@@ -144,40 +197,47 @@ class MaterialDrawer extends StatelessWidget {
     );
   }
 
-  // FUNCIÓN AUXILIAR: Constructor de elementos del menú
   Widget _buildMenuItem({
-    required BuildContext context,     // Contexto de la aplicación
-    required IconData icon,            // Ícono a mostrar
-    required String title,             // Título del elemento
-    required String route,             // Ruta de navegación
-    required bool isSelected,          // Estado de selección
-    VoidCallback? onTap,              // Función opcional al tocar
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String route,
+    required bool isSelected,
+    required bool isWeb,
+    VoidCallback? onTap,
   }) {
+    final double fontSize = getResponsiveSize(
+      MediaQuery.of(context).size.width * 0.04,
+      14.0,  // mínimo 14px
+      16.0   // máximo 16px
+    );
+
     return Container(
-      // Estilo del contenedor del ítem
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: isSelected ? lightBlue : Colors.transparent,
+        color: isSelected ? MaterialDrawer.lightBlue : Colors.transparent,
       ),
       child: ListTile(
-        // Ícono del elemento
+        dense: !isWeb, // Más compacto en móvil
         leading: Icon(
           icon,
-          color: isSelected ? darkBlue : primaryBlue,
-          size: 24,
+          color: isSelected ? MaterialDrawer.darkBlue : MaterialDrawer.primaryBlue,
+          size: isWeb ? 24 : 22,
         ),
-        // Texto del elemento
         title: Text(
           title,
           style: TextStyle(
-            color: isSelected ? darkBlue : Colors.black87,
+            color: isSelected ? MaterialDrawer.darkBlue : Colors.black87,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: fontSize,
           ),
         ),
-        // Manejo del tap: usa onTap personalizado o navegación por defecto
         onTap: onTap ?? () {
-          if (currentPage != title) {
+          if (widget.currentPage != title) {
             Navigator.pushReplacementNamed(context, route);
           }
         },
