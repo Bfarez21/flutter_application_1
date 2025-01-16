@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/widgets/navbar.dart';
-import 'package:flutter_application_1/constants/Theme.dart';
 import 'package:camera/camera.dart';
+import 'package:tflite/tflite.dart';
 
 //widgets
-import 'package:flutter_application_1/widgets/navbar.dart';
-import 'package:flutter_application_1/widgets/card-horizontal.dart';
-import 'package:flutter_application_1/widgets/card-small.dart';
-import 'package:flutter_application_1/widgets/card-square.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 
 void main() {
@@ -33,11 +29,13 @@ class _HomeScreenState extends State<Home> {
   bool isReversed = false;
   CameraController? _cameraController;
   List<CameraDescription>? cameras;
+  List<dynamic>? _recognitions; // Almacena los resultados del modelo
 
   @override
   void initState() {
     super.initState();
     initializeCamera();
+    loadModel(); // Carga el modelo TFLite
   }
 
   Future<void> initializeCamera() async {
@@ -53,9 +51,34 @@ class _HomeScreenState extends State<Home> {
     }
   }
 
+  Future<void> loadModel() async {
+    String? res = await Tflite.loadModel(
+      model: "assets/model.tflite", // Ruta del modelo TFLite
+      labels: "assets/labels.txt", // Ruta del archivo de etiquetas
+    );
+    print("Modelo cargado: $res");
+  }
+
+  void runModelOnFrame() async {
+    if (_cameraController != null && _cameraController!.value.isInitialized) {
+      final frame = await _cameraController!.takePicture(); // Captura un frame
+
+      final recognitions = await Tflite.runModelOnImage(
+        path: frame.path, // Ruta de la imagen
+        numResults: 5, // Número máximo de resultados
+        threshold: 0.5, // Umbral de confianza
+      );
+
+      setState(() {
+        _recognitions = recognitions;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _cameraController?.dispose();
+    Tflite.close(); // Libera los recursos del modelo
     super.dispose();
   }
 
@@ -98,20 +121,20 @@ class _HomeScreenState extends State<Home> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       DropdownButton<String>(
-                        value: "Sign",
+                        value: "VLS",
                         underline: SizedBox(),
                         items: [
                           DropdownMenuItem(
-                            value: "Sign",
+                            value: "VLS",
                             child: Text(
-                              "Sign",
+                              "VLS",
                               style: TextStyle(color: Colors.black),
                             ),
                           ),
                           DropdownMenuItem(
-                            value: "Español",
+                            value: "ALS",
                             child: Text(
-                              "Español",
+                              "ALS",
                               style: TextStyle(color: Colors.black),
                             ),
                           ),
@@ -136,16 +159,16 @@ class _HomeScreenState extends State<Home> {
                         underline: SizedBox(),
                         items: [
                           DropdownMenuItem(
-                            value: "Sign",
+                            value: "Español",
                             child: Text(
-                              "Sign",
+                              "Español",
                               style: TextStyle(color: Colors.black),
                             ),
                           ),
                           DropdownMenuItem(
-                            value: "Español",
+                            value: "English",
                             child: Text(
-                              "VLS",
+                              "English",
                               style: TextStyle(color: Colors.black),
                             ),
                           ),
@@ -210,16 +233,16 @@ class _HomeScreenState extends State<Home> {
                         underline: SizedBox(),
                         items: [
                           DropdownMenuItem(
-                            value: "Sign",
+                            value: "Español",
                             child: Text(
-                              "Sign",
+                              "Español",
                               style: TextStyle(color: Colors.black),
                             ),
                           ),
                           DropdownMenuItem(
-                            value: "Español",
+                            value: "English",
                             child: Text(
-                              "VLS",
+                              "English",
                               style: TextStyle(color: Colors.black),
                             ),
                           ),
@@ -240,20 +263,20 @@ class _HomeScreenState extends State<Home> {
                         ),
                       ),
                       DropdownButton<String>(
-                        value: "Sign",
+                        value: "VLS",
                         underline: SizedBox(),
                         items: [
                           DropdownMenuItem(
-                            value: "Sign",
+                            value: "VLS",
                             child: Text(
-                              "Sign",
+                              "VLS",
                               style: TextStyle(color: Colors.black),
                             ),
                           ),
                           DropdownMenuItem(
-                            value: "Español",
+                            value: "ALS",
                             child: Text(
-                              "Español",
+                              "ALS",
                               style: TextStyle(color: Colors.black),
                             ),
                           ),
@@ -299,7 +322,9 @@ class _HomeScreenState extends State<Home> {
                     height: 160,
                     child: Center(
                       child: Text(
-                        "",
+                        _recognitions != null
+                            ? _recognitions!.map((e) => e['label']).join(', ')
+                            : "",
                         style: TextStyle(color: Colors.black54),
                         textAlign: TextAlign.center,
                       ),
