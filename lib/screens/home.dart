@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/widgets/navbar.dart';
 import 'package:camera/camera.dart';
 import 'package:tflite/tflite.dart';
-
+// Constante
+import 'package:flutter_application_1/constants/text_to_sign.dart';
 //widgets
 import 'package:flutter_application_1/widgets/drawer.dart';
+import 'package:flutter_application_1/widgets/slider-product.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,6 +32,8 @@ class _HomeScreenState extends State<Home> {
   CameraController? _cameraController;
   List<CameraDescription>? cameras;
   List<dynamic>? _recognitions; // Almacena los resultados del modelo
+  String ingresoTexto = "";
+  String? gifPath; // ruta del gifs
 
   @override
   void initState() {
@@ -90,6 +94,25 @@ class _HomeScreenState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    // Datos de ejemplo para el carrusel
+    List<Map<String, String>> exampleImages = [
+      {
+        "img": "assets/images/fondoManos.png",
+        "title": "GIF 1",
+        "description": "Sign for A"
+      },
+      {
+        "img": "assets/images/user.png",
+        "title": "GIF 2",
+        "description": "Sign for B"
+      },
+      {
+        "img": "assets/images/text_to_signs.jpeg",
+        "title": "GIF 3",
+        "description": "Sign for C"
+      },
+    ];
+
     return Scaffold(
       backgroundColor: Colors.blue[700],
       appBar: Navbar(
@@ -190,14 +213,19 @@ class _HomeScreenState extends State<Home> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        ingresoTexto = value;
+                      });
+                    },
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: '',
+                      hintText: 'Escribe aquí...',
                     ),
                     maxLines: 5,
                   ),
                 ),
-                Expanded(
+                /*Expanded(
                   child: Center(
                     child: Icon(
                       Icons.back_hand_rounded,
@@ -206,6 +234,64 @@ class _HomeScreenState extends State<Home> {
                     ),
                   ),
                 ),
+                 Expanded(
+            child: Center(
+              child: ingresoTexto.isNotEmpty
+                  ? Image.asset(
+                      TextToSignLogic.getGifForText(ingresoTexto) ??
+                          'assets/gifs/default.gif',
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(
+                      child: Text(
+                        "Ingresa una palabra para ver el GIF",
+                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      ),
+                    ),
+            ),
+          ),*/
+                // Agregar el carrusel debajo del TextField
+                ProductCarousel(imgArray: exampleImages),
+                Expanded(
+                  child: Center(
+                    child: ingresoTexto.isNotEmpty
+                        ? FutureBuilder<Widget>(
+                            future: Future(() {
+                              List<String> gifs =
+                                  TextToSignLogic.translateTextToGifs(
+                                      ingresoTexto);
+                              // Por ahora mostraremos solo el primer GIF
+                              return gifs.isNotEmpty
+                                  ? Image.asset(
+                                      gifs.first,
+                                      width: 215,
+                                      height: 215,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Text(
+                                      "No se encontró traducción",
+                                      style: TextStyle(
+                                          color: Colors.white.withOpacity(0.7)),
+                                    );
+                            }),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return snapshot.data!;
+                              }
+                              return CircularProgressIndicator();
+                            },
+                          )
+                        : Container(
+                            child: Text(
+                              "Ingresa una palabra para ver ",
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7)),
+                            ),
+                          ),
+                  ),
+                )
               ],
             )
           : Column(
