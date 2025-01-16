@@ -34,12 +34,12 @@ class _LoginState extends State<Login> {
   Future<void> _signInWithEmailAndPassword(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       try {
-        final UserCredential userCredential = 
+        final UserCredential userCredential =
             await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text,
           password: _passwordController.text,
         );
-        
+
         if (userCredential.user != null) {
           Navigator.pushReplacementNamed(context, '/home');
         }
@@ -136,7 +136,8 @@ class _LoginState extends State<Login> {
                           decoration: InputDecoration(
                             hintText: 'Correo electrónico',
                             hintStyle: TextStyle(color: Colors.white70),
-                            prefixIcon: Icon(Icons.person, color: Colors.white70),
+                            prefixIcon:
+                                Icon(Icons.person, color: Colors.white70),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30),
                               borderSide: BorderSide(color: Colors.white70),
@@ -284,6 +285,37 @@ class _LoginState extends State<Login> {
                           ),
                           label: Text(
                             'Iniciar sesión con Google',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 16),
+                      // Nuevo botón para modo invitado
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.grey[700],
+                            side: BorderSide(color: Colors.white),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, '/home');
+                          },
+                          icon: Icon(
+                            Icons.person_outline,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            'Continuar como Invitado',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
