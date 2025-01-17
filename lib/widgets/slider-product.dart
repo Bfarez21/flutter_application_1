@@ -1,26 +1,26 @@
-import 'package:flutter/material.dart';  
-import 'package:carousel_slider/carousel_slider.dart';  
+import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
-class ProductCarousel extends StatefulWidget {  
-  final List<Map<String, dynamic>> imgArray;  
+class ProductCarousel extends StatefulWidget {
+  final List<Map<String, dynamic>> imgArray;
 
-  const ProductCarousel({  
-    Key? key,  
-    required this.imgArray,  
-  }) : super(key: key);  
+  const ProductCarousel({
+    Key? key,
+    required this.imgArray,
+  }) : super(key: key);
 
-  @override  
-  _ProductCarouselState createState() => _ProductCarouselState();  
-}  
+  @override
+  _ProductCarouselState createState() => _ProductCarouselState();
+}
 
-class _ProductCarouselState extends State<ProductCarousel> {  
-  int _current = 0;  
+class _ProductCarouselState extends State<ProductCarousel> {
+  int _current = 0;
 
-  @override  
-  Widget build(BuildContext context) {  
-    final screenWidth = MediaQuery.of(context).size.width;  
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
 
-    return Container(  
+     return Container(  
       width: screenWidth * 0.9, // 90% del ancho de la pantalla  
       child: CarouselSlider(  
         items: widget.imgArray  
@@ -76,5 +76,5 @@ class _ProductCarouselState extends State<ProductCarousel> {
         ),  
       ),  
     );  
-  }  
+  }
 }

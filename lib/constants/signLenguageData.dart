@@ -1,8 +1,8 @@
 class SignLanguageData {
   static final Map<String, String> signGifs = {
     // Letras
-    'A': 'assets/gifs/letras/a.gif',
-    'B': 'assets/gifs/letras/b.gif',
+    'A': 'assets/gifs/letras/A.gif',
+    'B': 'assets/gifs/letras/B.gif',
     //'C': 'assets/gifs/letters/c.gif',
     // Números
     '1': 'assets/gifs/numeros/1.gif',

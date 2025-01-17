@@ -95,7 +95,7 @@ class _HomeScreenState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     // Datos de ejemplo para el carrusel
-    List<Map<String, dynamic>> exampleImages = [  
+     List<Map<String, dynamic>> exampleImages = [  
   {  
     "img": AssetImage("assets/images/fondoManos.png"),  
     "title": "GIF 1",  
