@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class SignLanguageData {
   static final Map<String, String> signGifs = {
     // Letras
@@ -21,4 +23,23 @@ class SignLanguageData {
     'ADIOS',
     'POR FAVOR',
   };
+
+       // Datos de ejemplo para el Sider-carrusel
+     static final List<Map<String, dynamic>> exampleImages = [  
+  {  
+    "img": AssetImage("assets/images/fondoManos.png"),  
+    "title": "GIF 1",  
+    "description": "Sign for A"  
+  },  
+  {  
+    "img": AssetImage("assets/images/user.png"),  
+    "title": "GIF 2",  
+    "description": "Sign for B"  
+  },  
+  {  
+    "img": AssetImage("assets/images/text_to_signs.jpeg"),  
+    "title": "GIF 3",  
+    "description": "Sign for C"  
+  },  
+];
 }

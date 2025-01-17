@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:tflite/tflite.dart';
 // Constante
 import 'package:flutter_application_1/constants/text_to_sign.dart';
+import 'package:flutter_application_1/constants/signLenguageData.dart';
 //widgets
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/widgets/slider-product.dart';
@@ -94,24 +95,6 @@ class _HomeScreenState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // Datos de ejemplo para el carrusel
-     List<Map<String, dynamic>> exampleImages = [  
-  {  
-    "img": AssetImage("assets/images/fondoManos.png"),  
-    "title": "GIF 1",  
-    "description": "Sign for A"  
-  },  
-  {  
-    "img": AssetImage("assets/images/user.png"),  
-    "title": "GIF 2",  
-    "description": "Sign for B"  
-  },  
-  {  
-    "img": AssetImage("assets/images/text_to_signs.jpeg"),  
-    "title": "GIF 3",  
-    "description": "Sign for C"  
-  },  
-];
 
     return Scaffold(
       backgroundColor: Colors.blue[700],
@@ -253,7 +236,7 @@ class _HomeScreenState extends State<Home> {
             ),
           ),*/
                 // Agregar el carrusel debajo del TextField
-                ProductCarousel(imgArray: exampleImages),
+                ProductCarousel(imgArray: SignLanguageData.exampleImages),
                 Expanded(
                   child: Center(
                     child: ingresoTexto.isNotEmpty
