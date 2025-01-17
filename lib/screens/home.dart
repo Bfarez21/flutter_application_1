@@ -95,23 +95,23 @@ class _HomeScreenState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     // Datos de ejemplo para el carrusel
-    List<Map<String, String>> exampleImages = [
-      {
-        "img": "assets/images/fondoManos.png",
-        "title": "GIF 1",
-        "description": "Sign for A"
-      },
-      {
-        "img": "assets/images/user.png",
-        "title": "GIF 2",
-        "description": "Sign for B"
-      },
-      {
-        "img": "assets/images/text_to_signs.jpeg",
-        "title": "GIF 3",
-        "description": "Sign for C"
-      },
-    ];
+    List<Map<String, dynamic>> exampleImages = [  
+  {  
+    "img": AssetImage("assets/images/fondoManos.png"),  
+    "title": "GIF 1",  
+    "description": "Sign for A"  
+  },  
+  {  
+    "img": AssetImage("assets/images/user.png"),  
+    "title": "GIF 2",  
+    "description": "Sign for B"  
+  },  
+  {  
+    "img": AssetImage("assets/images/text_to_signs.jpeg"),  
+    "title": "GIF 3",  
+    "description": "Sign for C"  
+  },  
+];
 
     return Scaffold(
       backgroundColor: Colors.blue[700],
@@ -222,7 +222,7 @@ class _HomeScreenState extends State<Home> {
                       border: InputBorder.none,
                       hintText: 'Escribe aquí...',
                     ),
-                    maxLines: 5,
+                    maxLines: 3,
                   ),
                 ),
                 /*Expanded(
