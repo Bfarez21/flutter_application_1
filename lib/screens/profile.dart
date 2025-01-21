@@ -4,7 +4,8 @@ import 'package:flutter_application_1/constants/Theme.dart';
 import 'package:flutter_application_1/widgets/navbar.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/widgets/photo-album.dart';
-import 'package:flutter_application_1/services/auth_service.dart'; // Importa tu AuthService
+import 'package:flutter_application_1/services/auth_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -49,18 +50,36 @@ class _ProfileState extends State<Profile> {
       drawer: MaterialDrawer(currentPage: "Profile"),
       body: Stack(
         children: [
+          // Imagen de fondo principal
           Container(
             height: MediaQuery.of(context).size.height * 0.6,
             decoration: BoxDecoration(
               image: DecorationImage(
                 alignment: Alignment.topCenter,
                 image: _userImage != null && _userImage!.isNotEmpty
-                    ? NetworkImage(_userImage!)
+                    ? CachedNetworkImageProvider(
+                        _userImage!,
+                        maxWidth: 1080, // Define una resolución más alta
+                        maxHeight: 1080,
+                      )
                     : AssetImage('assets/default_profile.png') as ImageProvider,
-                fit: BoxFit.fitWidth,
+                fit: BoxFit.cover,
               ),
             ),
           ),
+          // Segunda imagen de fondo superpuesta
+          Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/background_start.jpeg'),
+                fit: BoxFit.cover,
+                colorFilter:
+                    ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken),
+              ),
+            ),
+          ),
+          // Efecto de degradado
           Container(
             height: MediaQuery.of(context).size.height * 0.6,
             decoration: BoxDecoration(
@@ -74,9 +93,10 @@ class _ProfileState extends State<Profile> {
               ),
             ),
           ),
+          // Información del usuario
           Container(
             margin: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height * 0.45,
+              top: MediaQuery.of(context).size.height * 0.42, // Ajustado para subir más arriba
             ),
             padding: EdgeInsets.symmetric(horizontal: 28),
             child: Row(
@@ -97,7 +117,8 @@ class _ProfileState extends State<Profile> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.grey[300],
-                    child: Icon(Icons.person, size: 40, color: Colors.grey[600]),
+                    child:
+                        Icon(Icons.person, size: 40, color: Colors.grey[600]),
                   ),
                 SizedBox(width: 16),
                 // Ajuste del nombre con Flexible
@@ -105,9 +126,9 @@ class _ProfileState extends State<Profile> {
                   child: Text(
                     _userName,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 18, // Reducido para evitar desbordes
                       color: Colors.white,
-                      overflow: TextOverflow.ellipsis, // Maneja texto largo
+                      overflow: TextOverflow.ellipsis,
                     ),
                     maxLines: 1,
                   ),
@@ -115,6 +136,7 @@ class _ProfileState extends State<Profile> {
               ],
             ),
           ),
+          // Tarjeta de información y estadísticas
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
