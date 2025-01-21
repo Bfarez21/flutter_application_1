@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_application_1/screens/TextToSigns.dart';
+
 class ProductCarousel extends StatefulWidget {
   final List<Map<String, dynamic>> imgArray;
 
@@ -44,7 +46,7 @@ class _ProductCarouselState extends State<ProductCarousel> {
               itemCount: widget.imgArray.length,
               itemBuilder: (context, index, realIndex) {
                 bool isCurrentPage = index == _current;
-                
+
                 return TweenAnimationBuilder(
                   duration: const Duration(milliseconds: 350),
                   tween: Tween<double>(begin: 0, end: isCurrentPage ? 1 : 0.8),
@@ -54,75 +56,87 @@ class _ProductCarouselState extends State<ProductCarousel> {
                       scale: value,
                       child: Opacity(
                         opacity: isCurrentPage ? 1 : 0.5,
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                            vertical: isCurrentPage ? 0 : 20,
-                            horizontal: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              if (isCurrentPage)
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 20,
-                                  spreadRadius: 5,
-                                  offset: const Offset(0, 10),
-                                ),
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: Image(
-                                      image: widget.imgArray[index]["img"],
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                    ),
+                        child: GestureDetector(
+                          onTap: () {
+                            // Navegar a la ventana de TextToSigns
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TextToSigns()),
+                            );
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(
+                              vertical: isCurrentPage ? 0 : 20,
+                              horizontal: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                if (isCurrentPage)
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 20,
+                                    spreadRadius: 5,
+                                    offset: const Offset(0, 10),
                                   ),
-                                  if (widget.imgArray[index]["description"] != null)
-                                    Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: const BorderRadius.only(
-                                          bottomLeft: Radius.circular(20),
-                                          bottomRight: Radius.circular(20),
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: Image(
+                                        image: widget.imgArray[index]["img"],
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                      ),
+                                    ),
+                                    if (widget.imgArray[index]["description"] !=
+                                        null)
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: const BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20),
+                                          ),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              widget.imgArray[index]
+                                                  ["description"]!,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey[800],
+                                                fontWeight: isCurrentPage
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            widget.imgArray[index]["description"]!,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                              fontWeight: isCurrentPage
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),

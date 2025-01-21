@@ -160,7 +160,7 @@ class _NavbarState extends State<Navbar> {
                         ),
                         IconButton(
                           icon: Icon(
-                            FontAwesomeIcons.playstation,
+                            FontAwesomeIcons.gamepad,
                             color: !widget.transparent
                                 ? (widget.bgColor == Colors.white
                                     ? Colors.black

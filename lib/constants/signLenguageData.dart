@@ -60,4 +60,38 @@ class SignLanguageData {
     "description": "Sign for C"  
   },  
 ];
+
+       // Datos de ejemplo para el Sider-carrusel vertical category
+     static final List<Map<String, dynamic>> categoryImages = [  
+  {  
+    "img": AssetImage("assets/images/numeros.png"),  
+    "title": "GIF 1",  
+    "description": "Signs for numbers",
+    "type": "numero"  
+  },  
+  {  
+    "img": AssetImage("assets/images/diasSemana.jpeg"),  
+    "title": "GIF 2",  
+    "description": "Signs for days",
+    "type" : "dias" 
+  },  
+  {  
+    "img": AssetImage("assets/images/colores.png"),  
+    "title": "GIF 3",  
+    "description": "Signs for Colors",
+    "type": "colores"  
+  },  
+  {  
+    "img": AssetImage("assets/images/preguntas.jpg"),  
+    "title": "GIF 4",  
+    "description": "Signs for questions",
+    "type": "interrogantes"  
+  },
+   {  
+    "img": AssetImage("assets/images/profesiones.jpg"),  
+    "title": "GIF 5",  
+    "description": "Signs for professions",
+    "type": "profesiones"  
+  },
+];
 }
