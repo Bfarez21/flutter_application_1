@@ -9,6 +9,24 @@ class SignLanguageData {
     // Números
     '1': 'assets/gifs/numeros/1.gif',
     '2': 'assets/gifs/numeros/2.gif',
+    '3': 'assets/gifs/numeros/3.gif',  
+    '4': 'assets/gifs/numeros/4.gif',  
+    '5': 'assets/gifs/numeros/5.gif',  
+    '6': 'assets/gifs/numeros/6.gif',  
+    '7': 'assets/gifs/numeros/7.gif',  
+    '8': 'assets/gifs/numeros/8.gif',  
+    '9': 'assets/gifs/numeros/9.gif',  
+    '10': 'assets/gifs/numeros/10.gif',
+
+    // Dias Semana
+    'Lunes':'assets/gifs/diasSemana/lunes.gif',
+    'Martes': 'assets/gifs/diasSemana/martes.gif',  
+    'Miercoles': 'assets/gifs/diasSemana/miercoles.gif',  
+    'Jueves': 'assets/gifs/diasSemana/jueves.gif',  
+    'Viernes': 'assets/gifs/diasSemana/viernes.gif',  
+    'Sábado': 'assets/gifs/diasSemana/sabado.gif',  
+    'Domingo': 'assets/gifs/diasSemana/domingo.gif',  
+ 
     // Palabras comunes
     'HOLA': 'assets/gifs/palabras/hola.gif',
     'DORMIR': 'assets/gifs/palabras/dormir.gif',

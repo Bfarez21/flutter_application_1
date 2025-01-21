@@ -9,9 +9,12 @@ class TextToSignLogic {
     List<String> signs = [];
     String cleanedText = text.toUpperCase().trim();
 
+     // Norm aliza el texto para la búsqueda directa  
+  String normalizedText = cleanedText[0].toUpperCase() + cleanedText.substring(1).toLowerCase();  
+
     // Busca directamente la frase completa en los datos
-    if (SignLanguageData.signGifs.containsKey(cleanedText)) {
-      signs.add(SignLanguageData.signGifs[cleanedText]!);
+    if (SignLanguageData.signGifs.containsKey(normalizedText)) {
+      signs.add(SignLanguageData.signGifs[normalizedText]!);
     } else {
       // Si no encuentra la frase completa, divide en palabras
       List<String> words = cleanedText.split(' ');
@@ -21,11 +24,11 @@ class TextToSignLogic {
           signs.add(SignLanguageData.signGifs[word]!);
         } else {
           // Si no encuentra la palabra, divide en letras
-          for (String letter in word.split('')) {
+          /*for (String letter in word.split('')) {
             if (SignLanguageData.signGifs.containsKey(letter)) {
               signs.add(SignLanguageData.signGifs[letter]!);
             }
-          }
+          }*/
         }
       }
     }
