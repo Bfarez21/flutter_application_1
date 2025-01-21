@@ -47,7 +47,7 @@ dependencies:
   cloud_firestore: ^4.17.5 # Si usas Firestore
   firebase_auth_web: ^5.8.14 # Si usas web
   tflite: ^1.1.2 # Dependencia para utilizar el modelo IA
-  
+  cached_network_image: ^3.3.0
 
 
   # The following adds the Cupertino Icons font to your application.
