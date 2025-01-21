@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_application_1/services/auth_service.dart'; // Add this line to import AuthService
 
 class MaterialDrawer extends StatefulWidget {
   final String currentPage;
@@ -175,7 +176,8 @@ class _MaterialDrawerState extends State<MaterialDrawer> {
                       isWeb: isWeb,
                       onTap: () async {
                         try {
-                          await FirebaseAuth.instance.signOut();
+                          AuthService authService = AuthService();
+                          await authService.handleSignOut();
                           Navigator.pushReplacementNamed(context, '/signin');
                         } catch (error) {
                           ScaffoldMessenger.of(context).showSnackBar(
