@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screens/Category.dart';
 
 //import 'package:flutter_application_1/constants/Theme.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // import 'package:material_kit_flutter/screens/categories.dart';
 // import 'package:material_kit_flutter/screens/best-deals.dart';
@@ -107,9 +110,7 @@ class _NavbarState extends State<Navbar> {
                     children: [
                       IconButton(
                         icon: Icon(
-                          widget.backButton
-                              ? Icons.arrow_back_ios
-                              : Icons.menu,
+                          widget.backButton ? Icons.arrow_back_ios : Icons.menu,
                           color: !widget.transparent
                               ? (widget.bgColor == Colors.white
                                   ? Colors.black
@@ -159,7 +160,7 @@ class _NavbarState extends State<Navbar> {
                         ),
                         IconButton(
                           icon: Icon(
-                            Icons.add_shopping_cart,
+                            FontAwesomeIcons.playstation,
                             color: !widget.transparent
                                 ? (widget.bgColor == Colors.white
                                     ? Colors.black
@@ -167,7 +168,14 @@ class _NavbarState extends State<Navbar> {
                                 : Colors.white,
                             size: 22.0,
                           ),
-                          onPressed: () {},
+                          // redirigo a otra ventana
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CategoryScreen()),
+                            );
+                          },
                         ),
                       ],
                     )
@@ -254,8 +262,7 @@ class _NavbarState extends State<Navbar> {
                             left: index == 0 ? 46 : 8,
                             right: 8,
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           decoration: BoxDecoration(
                             border: Border(
                               bottom: BorderSide(
@@ -290,4 +297,3 @@ class _NavbarState extends State<Navbar> {
     );
   }
 }
-

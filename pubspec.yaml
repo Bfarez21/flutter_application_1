@@ -47,7 +47,8 @@ dependencies:
   cloud_firestore: ^4.17.5 # Si usas Firestore
   firebase_auth_web: ^5.8.14 # Si usas web
   tflite: ^1.1.2 # Dependencia para utilizar el modelo IA
-  
+  vertical_card_pager: ^1.4.0
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -86,6 +87,7 @@ flutter:
     - assets/gifs/numeros/
     - assets/gifs/palabras/
     - assets/gifs/frasesComunes/
+    - assets/gifs/diasSemana/
     - assets/images/
   # To add assets to your application, add an assets section, like this:
   # assets:
