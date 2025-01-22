@@ -62,7 +62,10 @@ class _ProductCarouselState extends State<ProductCarousel> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => TextToSigns()),
+                                  builder: (context) => TextToSigns(
+                                       type: widget.imgArray[index]["type"], // Pasamos el tipo
+                                  ),
+                                  ),
                             );
                           },
                           child: Container(

@@ -88,6 +88,9 @@ flutter:
     - assets/gifs/palabras/
     - assets/gifs/frasesComunes/
     - assets/gifs/diasSemana/
+    - assets/gifs/colores/
+    - assets/gifs/interrogativos/
+    - assets/gifs/profesiones/    
     - assets/images/
   # To add assets to your application, add an assets section, like this:
   # assets:
