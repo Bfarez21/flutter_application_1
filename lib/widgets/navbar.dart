@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/screens/Category.dart';
 
@@ -43,7 +42,7 @@ class Navbar extends StatefulWidget implements PreferredSizeWidget {
     this.searchAutofocus = false,
     this.backButton = false,
     this.noShadow = false,
-    this.bgColor = Colors.white,
+    this.bgColor = Colors.blue,
     this.searchBar = false,
   });
 
@@ -79,11 +78,11 @@ class _NavbarState extends State<Navbar> {
     return Container(
       height: widget.searchBar
           ? (!categories
-              ? (tagsExist ? 211.0 : 178.0)
-              : (tagsExist ? 262.0 : 210.0))
+              ? (tagsExist ? 160 : 130.0)
+              : (tagsExist ? 200.0 : 170.0))
           : (!categories
-              ? (tagsExist ? 132.0 : 102.0)
-              : (tagsExist ? 200.0 : 150.0)),
+              ? (tagsExist ? 100.0 : 80.0)
+              : (tagsExist ? 150.0 : 120.0)),
       decoration: BoxDecoration(
         color: !widget.transparent ? widget.bgColor : Colors.transparent,
         boxShadow: [
