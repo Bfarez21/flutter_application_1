@@ -5,42 +5,53 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  // Google Sign In
-  Future<void> handleSignIn() async {
+  // Iniciar sesión con Google
+  Future<User?> handleSignIn() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser != null) {
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
+      if (googleUser == null) return null; // Si el usuario cancela el login
 
-        AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-        await _auth.signInWithCredential(credential);
-      }
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      return userCredential.user;
     } catch (e) {
-      print('Se produjo un error al autenticarse: $e');
+      print('Error al autenticarse con Google: $e');
+      return null;
     }
   }
 
   // Obtener datos del usuario autenticado
   Map<String, String>? getUserInfo() {
-    final user = _auth.currentUser;
-    if (user != null) {
-      return {
-        'nombre': user.displayName ?? '',
-        'correo': user.email ?? '',
-        'foto': user.photoURL ?? '',
-      };
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        return {
+          'nombre': user.displayName ?? '',
+          'correo': user.email ?? '',
+          'foto': user.photoURL ?? '',
+        };
+      }
+      return null; // Usuario no autenticado
+    } catch (e) {
+      print('Error al obtener la información del usuario: $e');
+      return null;
     }
-    return null; // Usuario no autenticado
   }
 
-  // Google Sign Out
+  // Cerrar sesión de Google y Firebase
   Future<void> handleSignOut() async {
     try {
-      await _googleSignIn.signOut();
+      if (await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.disconnect();
+      }
       await _auth.signOut();
     } catch (e) {
       print('Error al cerrar sesión: $e');

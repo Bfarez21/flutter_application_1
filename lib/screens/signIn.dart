@@ -3,6 +3,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/screens/home.dart';
 import 'package:flutter_application_1/services/auth_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Login extends StatefulWidget {
   @override
@@ -10,50 +12,147 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final _formKey = GlobalKey<FormState>();
-  bool _obscurePassword = true;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
+  bool _isLoading = false; // Estado para mostrar el indicador de carga
 
   // Función para iniciar sesión con Google
   Future<void> _signInWithGoogle(BuildContext context) async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
     try {
-      await _authService.handleSignIn();
-      if (FirebaseAuth.instance.currentUser != null) {
+      User? user = await _authService.handleSignIn();
+      if (user != null) {
+        String googleId = user.uid;
+
+        bool isUserRegistered = await _checkIfUserExists(googleId);
+        if (!isUserRegistered) {
+          bool registrationSuccess = await _registerUser(googleId);
+          if (!registrationSuccess) {
+            // No redirigir si el registro falló
+            return;
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'El usuario ya está registrado.',
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: EdgeInsets.all(16),
+            ),
+          );
+        }
+
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al iniciar sesión con Google: $e')),
+        SnackBar(content: Text('Error al iniciar sesión: ${e.toString()}')),
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
-  // Función para iniciar sesión con email y contraseña
-  Future<void> _signInWithEmailAndPassword(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        final UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+  // Verificar si el usuario ya está registrado en el backend
+  Future<bool> _checkIfUserExists(String googleId) async {
+    try {
+      final response = await http.get(
+        //Se debe poner la dirección IP de la máquina donde se ejecuta el backend
+        //Uri.parse('http://192.168.0.101:8000/api/usuarios/buscar/$googleId/'),//Isaac
+        Uri.parse('http://192.168.52.41:8000/api/usuarios/buscar/$googleId/'),//TEC_EP_202
+      );
 
-        if (userCredential.user != null) {
-          Navigator.pushReplacementNamed(context, '/home');
-        }
-      } on FirebaseAuthException catch (e) {
-        String errorMessage = 'Ocurrió un error al iniciar sesión';
-        if (e.code == 'user-not-found') {
-          errorMessage = 'No existe un usuario con este correo';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'Contraseña incorrecta';
-        }
+      if (response.statusCode == 200) {
+        return true; // Usuario ya registrado
+      } else if (response.statusCode == 404) {
+        return false; // Usuario no existe
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
+          SnackBar(content: Text('Error al verificar el usuario.')),
         );
+        return false;
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white), // Ícono de error
+              SizedBox(width: 10), // Espacio entre el ícono y el texto
+              Expanded(
+                child: Text(
+                  'Error de conexión. Inténtalo de nuevo.',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red, // Fondo rojo para errores
+          behavior: SnackBarBehavior.floating, // Hace que el snackbar flote
+          duration: Duration(seconds: 5), // Duración del mensaje
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10), // Bordes redondeados
+          ),
+          margin: EdgeInsets.all(16), // Margen alrededor del snackbar
+        ),
+      );
+
+      return false;
+    }
+  }
+
+  // Registrar al usuario en el backend
+  Future<bool> _registerUser(String googleId) async {
+    try {
+      final response = await http.post(
+        //Uri.parse('http://192.168.0.101:8000/api/usuarios/'),
+        Uri.parse('http://192.168.52.41:8000/api/usuarios/'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'google_id': googleId}),
+      );
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Usuario registrado con éxito. Bienvenido!',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return true;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error al registrar usuario.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return false;
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo conectar con el servidor.')),
+      );
+      return false;
     }
   }
 
@@ -75,10 +174,7 @@ class _LoginState extends State<Login> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF1E88E5),
-                    Color(0xFF1976D2),
-                  ],
+                  colors: [Color(0xFF1E88E5), Color(0xFF1976D2)],
                 ),
               ),
         child: SafeArea(
@@ -88,244 +184,102 @@ class _LoginState extends State<Login> {
               child: Column(
                 children: [
                   SizedBox(height: 30),
-                  Column(
-                    children: [
-                      Text(
-                        'SignSpeak AI',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                  Text(
+                    'SignSpeak AI',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    height: 120,
+                    width: 120,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.sign_language,
+                        size: 60,
+                        color: Colors.white,
                       ),
-                      SizedBox(height: 20),
-                      Container(
-                        height: 120,
-                        width: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.sign_language,
-                            size: 60,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        'Inicia sesión',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Inicia sesión',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white,
+                    ),
                   ),
                   SizedBox(height: 30),
-                  Form(
-                    key: _formKey,
-                    child: Column(
+                  if (_isLoading)
+                    CircularProgressIndicator()
+                  else
+                    Column(
                       children: [
-                        TextFormField(
-                          controller: _emailController,
-                          style: TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: 'Correo electrónico',
-                            hintStyle: TextStyle(color: Colors.white70),
-                            prefixIcon:
-                                Icon(Icons.person, color: Colors.white70),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(color: Colors.white70),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Color.fromARGB(255, 21, 83, 134),
+                              side: BorderSide(color: Colors.white),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(color: Colors.white),
+                            onPressed: () => _signInWithGoogle(context),
+                            icon: Image.asset(
+                              'assets/images/google.png',
+                              height: 24,
                             ),
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.1),
+                            label: Text(
+                              'Iniciar sesión con Google',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingrese su correo electrónico';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Por favor ingrese un correo electrónico válido';
-                            }
-                            return null;
-                          },
                         ),
                         SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          style: TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: '********',
-                            hintStyle: TextStyle(color: Colors.white70),
-                            prefixIcon: Icon(Icons.lock, color: Colors.white70),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: Colors.white70,
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Colors.grey[700],
+                              side: BorderSide(color: Colors.white),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
                             ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(color: Colors.white70),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.1),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingrese su contraseña';
-                            }
-                            if (value.length < 6) {
-                              return 'La contraseña debe tener al menos 6 caracteres';
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
                             onPressed: () {
-                              // Implementar lógica de recuperación de contraseña
+                              Navigator.pushReplacementNamed(context, '/home');
                             },
-                            child: Text(
-                              'Olvidé mi contraseña',
-                              style: TextStyle(color: Colors.white70),
+                            icon: Icon(
+                              Icons.person_outline,
+                              color: Colors.white,
+                            ),
+                            label: Text(
+                              'Continuar como Invitado',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: 30),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () => _signInWithEmailAndPassword(context),
-                          child: Text(
-                            'Iniciar Sesión',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '¿No tienes una cuenta?',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(
-                                  context, '/crearCuenta');
-                            },
-                            child: Text(
-                              'Crear cuenta',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 21, 83, 134),
-                            side: BorderSide(color: Colors.white),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () => _signInWithGoogle(context),
-                          icon: Image.asset(
-                            'assets/images/google.png',
-                            height: 24,
-                          ),
-                          label: Text(
-                            'Iniciar sesión con Google',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 16),
-                      // Nuevo botón para modo invitado
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: Colors.grey[700],
-                            side: BorderSide(color: Colors.white),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/home');
-                          },
-                          icon: Icon(
-                            Icons.person_outline,
-                            color: Colors.white,
-                          ),
-                          label: Text(
-                            'Continuar como Invitado',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                   SizedBox(height: 30),
                 ],
               ),
@@ -334,12 +288,5 @@ class _LoginState extends State<Login> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }
