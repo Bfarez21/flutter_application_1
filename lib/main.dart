@@ -24,7 +24,7 @@ Future<void> main() async {
     print("Error inicializando Firebase: $e");
   }
   runApp(MaterialKitPROFlutter());
-}   
+}
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
@@ -43,7 +43,8 @@ class DefaultFirebaseOptions {
       messagingSenderId: "105200073019",
       projectId: "signspeak-ai",
       storageBucket: "signspeak-ai.firebasestorage.app",
-      androidClientId: "105200073019-41br8gloqnrtp0l9fk7tecl4e1qfrvmd.apps.googleusercontent.com",
+      androidClientId:
+          "105200073019-41br8gloqnrtp0l9fk7tecl4e1qfrvmd.apps.googleusercontent.com",
     );
   }
 }
@@ -62,12 +63,12 @@ class MaterialKitPROFlutter extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           // Si el usuario no está autenticado, mostrar onboarding
           if (!snapshot.hasData) {
             return Onboarding();
           }
-          
+
           // Si el usuario está autenticado, mostrar home
           return Home();
         },
@@ -79,7 +80,7 @@ class MaterialKitPROFlutter extends StatelessWidget {
         "/profile": (BuildContext context) => Profile(),
         "/settings": (BuildContext context) => Settings(),
         "/signin": (BuildContext context) => Login(),
-        "/camara": (BuildContext context) => Camara(),
+        // "/camara": (BuildContext context) => Camara(),
         "/historial": (BuildContext context) => HistorialView(),
         "/crearCuenta": (BuildContext context) => CrearCuenta()
       },
@@ -95,24 +96,24 @@ class AuthService {
     try {
       if (kIsWeb) {
         GoogleAuthProvider authProvider = GoogleAuthProvider();
-        final UserCredential userCredential = 
+        final UserCredential userCredential =
             await _auth.signInWithPopup(authProvider);
         return userCredential.user;
       } else {
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
         if (googleUser == null) return null;
 
-        final GoogleSignInAuthentication googleAuth = 
+        final GoogleSignInAuthentication googleAuth =
             await googleUser.authentication;
-        
+
         final credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
         );
 
-        final UserCredential userCredential = 
+        final UserCredential userCredential =
             await _auth.signInWithCredential(credential);
-            
+
         return userCredential.user;
       }
     } catch (e) {

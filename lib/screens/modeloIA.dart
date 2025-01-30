@@ -65,4 +65,6 @@ class ModeloIA {
   void liberarRecursos() {
     _interpreter?.close();
   }
+
+  Interpreter? get interpreter => _interpreter;
 }

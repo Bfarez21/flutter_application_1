@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screens/Camera.dart';
 
 class SignToText extends StatefulWidget {
   const SignToText({
@@ -12,24 +13,28 @@ class SignToText extends StatefulWidget {
 class _SignToTextState extends State<SignToText> {
   String _textoReconocido = "Esperando detección...";
 
+  void _actualizarTextoReconocido(String texto) {
+    setState(() {
+      _textoReconocido = texto;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        /*Expanded(
-          child: Center(
-              child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 20.0), // Espacio lateral
-
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: 20.0), // Mantén el margen lateral aquí
             child: Camara(
-              onRecognition: (texto) {
-                setState(() {
-                  _textoReconocido = texto; // Actualiza el texto detectado
-                });
+              onTextoDetectado: (texto) {
+                _actualizarTextoReconocido(
+                    texto); // Actualizas el texto detectado
               },
-            ),
-          )),
-        ),*/
+            ), // Camara se mantendrá ocupando todo el espacio
+          ),
+        ),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
           padding: const EdgeInsets.all(8.0),

@@ -1,140 +1,106 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'dart:convert';
+import 'dart:async';
 
 class Camara extends StatefulWidget {
+  final Function(String) onTextoDetectado;
+
+  Camara({required this.onTextoDetectado});
+
   @override
-  _CameraScreenState createState() => _CameraScreenState();
+  _CamaraState createState() => _CamaraState();
 }
 
-class _CameraScreenState extends State<Camara> {
-  late CameraController _cameraController;
-  late List<CameraDescription> _cameras;
-  bool _isCameraInitialized = false;
-  String _detectedText = "No se ha detectado ningún gesto";
+class _CamaraState extends State<Camara> {
+  CameraController? cameraController;
+  bool _isProcessing = false;
+  Timer? _timer;
+
+  Future<void> initCamera() async {
+    final cameras = await availableCameras();
+    cameraController = CameraController(
+      cameras[0],
+      ResolutionPreset.medium,
+      imageFormatGroup: ImageFormatGroup.jpeg, // 🔹 Asegurar formato JPEG
+    );
+
+    await cameraController!.initialize();
+
+    // 🔹 Desactivar el flash
+    await cameraController!.setFlashMode(FlashMode.off);
+    if (!mounted) return;
+    setState(() {});
+
+    // 🔹 Capturar automáticamente cada 2 segundos
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      enviarImagenAlBackend();
+    });
+  }
+
+  // Agrega una variable global para almacenar el texto acumulado
+  String textoAcumulado = "";
+
+  Future<void> enviarImagenAlBackend() async {
+    if (cameraController == null || _isProcessing) return;
+
+    try {
+      _isProcessing = true;
+
+      XFile? imagen = await cameraController!.takePicture();
+      if (imagen == null) return;
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://192.168.0.103:8000/predict/'),
+      );
+
+      request.files.add(await http.MultipartFile.fromPath(
+        'file',
+        imagen.path,
+        contentType: MediaType('image', 'jpeg'),
+      ));
+
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        String textoDetectado = jsonDecode(responseData)['prediccion'];
+
+        // 🔹 Acumulamos el texto detectado en lugar de sobrescribirlo
+        textoAcumulado += " " + textoDetectado;
+
+        // 🔹 Actualizamos el estado con el texto acumulado
+        widget.onTextoDetectado(textoAcumulado);
+      } else {
+        print("Error en la respuesta del backend: $responseData");
+      }
+    } catch (e) {
+      print("Error al enviar la imagen: $e");
+    } finally {
+      _isProcessing = false;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _initializeCamera();
-  }
-
-  // Inicializa la cámara
-  void _initializeCamera() async {
-    _cameras = await availableCameras();
-    _cameraController = CameraController(_cameras[0], ResolutionPreset.high);
-
-    await _cameraController.initialize();
-    if (!mounted) return;
-
-    setState(() {
-      _isCameraInitialized = true;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_isCameraInitialized) {
-      return Scaffold(
-        appBar: AppBar(title: Text('Cámara')),
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Capturar Gestos'),
-        backgroundColor: Colors.black.withOpacity(0.5),
-      ),
-      body: Stack(
-        children: [
-          // Vista previa de la cámara
-          CameraPreview(_cameraController),
-          
-          // Overlay superior con instrucciones
-          Positioned(
-            top: 20,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              color: Colors.black.withOpacity(0.5),
-              child: Text(
-                'Realiza un gesto frente a la cámara',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-
-          // Panel inferior con el texto detectado
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.8),
-                    Colors.black.withOpacity(0.0),
-                  ],
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Gesto detectado:',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    _detectedText,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ),
-
-          // Indicador de área de detección
-          Center(
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.5),
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    initCamera();
   }
 
   @override
   void dispose() {
-    _cameraController.dispose();
+    _timer?.cancel();
+    cameraController?.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return cameraController != null && cameraController!.value.isInitialized
+        ? CameraPreview(cameraController!)
+        : Center(child: CircularProgressIndicator());
   }
 }
