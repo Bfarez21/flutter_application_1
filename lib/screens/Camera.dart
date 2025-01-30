@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+final String baseUrl = dotenv.env['BASE_URL_DEV']!;
 
 class Camara extends StatefulWidget {
   final Function(String) onTextoDetectado;
@@ -55,7 +58,7 @@ class _CamaraState extends State<Camara> {
 
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.0.103:8000/predict/'),
+        Uri.parse('$baseUrl/predict/'),
       );
 
       request.files.add(await http.MultipartFile.fromPath(

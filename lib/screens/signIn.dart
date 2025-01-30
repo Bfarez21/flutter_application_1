@@ -5,6 +5,7 @@ import 'package:flutter_application_1/screens/home.dart';
 import 'package:flutter_application_1/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -67,8 +68,8 @@ class _LoginState extends State<Login> {
     try {
       final response = await http.get(
         //Se debe poner la dirección IP de la máquina donde se ejecuta el backend
-        //Uri.parse('http://192.168.0.101:8000/api/usuarios/buscar/$googleId/'),//Isaac
-        Uri.parse('http://192.168.52.41:8000/api/usuarios/buscar/$googleId/'),//TEC_EP_202
+        Uri.parse(
+            '${dotenv.env['BASE_URL_DEV']}/api/usuarios/buscar/$googleId/'),
       );
 
       if (response.statusCode == 200) {
@@ -115,8 +116,7 @@ class _LoginState extends State<Login> {
   Future<bool> _registerUser(String googleId) async {
     try {
       final response = await http.post(
-        //Uri.parse('http://192.168.0.101:8000/api/usuarios/'),
-        Uri.parse('http://192.168.52.41:8000/api/usuarios/'),
+        Uri.parse('${dotenv.env['BASE_URL_DEV']}/api/usuarios/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'google_id': googleId}),
       );

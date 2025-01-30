@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 // screens
 import 'package:flutter_application_1/screens/home.dart';
 import 'package:flutter_application_1/screens/profile.dart';
@@ -17,6 +18,9 @@ import 'package:flutter_application_1/screens/crearCuenta.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
+    print("Iniciando carga del archivo .env...");
+    await dotenv.load(fileName: ".env");
+    print("Archivo .env cargado correctamente.");
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
