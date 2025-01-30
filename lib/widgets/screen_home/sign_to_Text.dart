@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/screens/Camera.dart';
+import 'package:flutter_application_1/widgets/screen_home/list-button-text.dart';
 
 class SignToText extends StatefulWidget {
   const SignToText({
@@ -42,15 +43,26 @@ class _SignToTextState extends State<SignToText> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: SizedBox(
-            height: 160,
-            child: Center(
-              child: Text(
-                _textoReconocido,
-                style: TextStyle(color: Colors.black54),
-                textAlign: TextAlign.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Para que se ajuste al contenido
+            children: [
+              SizedBox(
+                height: 120, // Altura del contenedor de texto
+                child: Container(
+                  alignment: Alignment
+                      .topLeft, // Alinea el texto a la izquierda y arriba.
+                  height: double
+                      .infinity, // Ocupa toda la altura disponible del SizedBox
+                  child: Text(
+                    _textoReconocido.isNotEmpty
+                        ? _textoReconocido
+                        : "Esperando detección...",
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                  ),
+                ),
               ),
-            ),
+              ListButtonText(),
+            ],
           ),
         )
       ],

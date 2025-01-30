@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/constants/signLenguageData.dart';
 import 'package:flutter_application_1/constants/text_to_sign.dart';
+import 'package:flutter_application_1/widgets/screen_home/list-button-sign.dart';
 import 'package:flutter_application_1/widgets/slider-product.dart';
 
 class TextToSign extends StatefulWidget {
@@ -23,22 +24,27 @@ class _TextToSignState extends State<TextToSign> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
         ),
-        child: TextField(
-          onChanged: (value) {
-            setState(() {
-              ingresoTexto = value;
-            });
-          },
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: 'Escribe aquí...',
-          ),
-          maxLines: 3,
+        child: Column(
+          children: [
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  ingresoTexto = value;
+                });
+              },
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Escribe aquí...',
+              ),
+              maxLines: 3,
+            ),
+            ListButtonSign(isButtonSign: false)
+          ],
         ),
       ),
 
-      // Agregar el carrusel debajo del TextField
-      ProductCarousel(imgArray: SignLanguageData.exampleImages),
+      /// Agregar el carrusel debajo del TextField
+      // ProductCarousel(imgArray: SignLanguageData.exampleImages),
       Expanded(
         child: Center(
           child: ingresoTexto.isNotEmpty
@@ -74,7 +80,8 @@ class _TextToSignState extends State<TextToSign> {
                   ),
                 ),
         ),
-      )
+      ),
+      ListButtonSign(isButtonSign: true)
     ]);
   }
 }
