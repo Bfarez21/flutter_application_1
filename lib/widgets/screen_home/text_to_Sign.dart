@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/constants/signLenguageData.dart';
 import 'package:flutter_application_1/constants/text_to_sign.dart';
 import 'package:flutter_application_1/widgets/screen_home/list-button-sign.dart';
-import 'package:flutter_application_1/widgets/slider-product.dart';
 
 class TextToSign extends StatefulWidget {
   const TextToSign({super.key});
@@ -12,6 +10,14 @@ class TextToSign extends StatefulWidget {
 }
 
 class _TextToSignState extends State<TextToSign> {
+  String textoReconocido = "";
+
+  void _actualizarTextoReconocido(String texto) {
+    setState(() {
+      textoReconocido = texto;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     String ingresoTexto = "";
@@ -27,18 +33,19 @@ class _TextToSignState extends State<TextToSign> {
         child: Column(
           children: [
             TextField(
-              onChanged: (value) {
-                setState(() {
-                  ingresoTexto = value;
-                });
-              },
+              onChanged: (value) => textoReconocido,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Escribe aquí...',
               ),
               maxLines: 3,
             ),
-            ListButtonSign(isButtonSign: false)
+            ListButtonSign(
+                isButtonSign: false,
+                onTextoEntered: (texto) {
+                  _actualizarTextoReconocido(
+                      texto); // Actualizas el texto detectado
+                })
           ],
         ),
       ),
@@ -81,7 +88,11 @@ class _TextToSignState extends State<TextToSign> {
                 ),
         ),
       ),
-      ListButtonSign(isButtonSign: true)
+      ListButtonSign(
+          isButtonSign: true,
+          onTextoEntered: (texto) {
+            _actualizarTextoReconocido(texto); // Actualizas el texto detectado
+          })
     ]);
   }
 }

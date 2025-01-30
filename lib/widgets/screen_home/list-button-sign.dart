@@ -1,13 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-class ListButtonSign extends StatelessWidget {
-  const ListButtonSign({super.key, required this.isButtonSign});
+class ListButtonSign extends StatefulWidget {
+  const ListButtonSign(
+      {super.key, required this.isButtonSign, required this.onTextoEntered});
 
   final bool isButtonSign;
+  final Function(String) onTextoEntered;
+
+  @override
+  State<ListButtonSign> createState() => _ListButtonSignState();
+}
+
+class _ListButtonSignState extends State<ListButtonSign> {
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _speech = stt.SpeechToText();
+  }
+
+  // Inicia o detiene el reconocimiento de voz
+  void _listen() async {
+    if (_isListening) {
+      _speech.stop();
+    } else {
+      bool available = await _speech.initialize();
+      if (available) {
+        _speech.listen(onResult: (result) {
+          setState(() {
+            // _text = result.recognizedWords; // Transcribe el texto
+            widget.onTextoEntered(result.recognizedWords);
+          });
+        });
+      }
+    }
+    setState(() {
+      _isListening = !_isListening; // Cambiar el estado de escucha
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return isButtonSign ? buttonSign() : buttonText();
+    return widget.isButtonSign ? buttonSign() : buttonText();
   }
 
   Row buttonText() {
@@ -19,9 +56,11 @@ class ListButtonSign extends StatelessWidget {
         },
       ),
       IconButton(
-        icon: Icon(Icons.mic, color: Colors.grey),
+        icon:
+            Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.grey),
         onPressed: () {
           // Acción del botón de audio.
+          _listen();
         },
       )
     ]);

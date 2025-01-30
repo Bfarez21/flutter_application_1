@@ -12,11 +12,13 @@ class SignToText extends StatefulWidget {
 }
 
 class _SignToTextState extends State<SignToText> {
-  String _textoReconocido = "Esperando detección...";
+  String _textoReconocido = "";
+  bool _isTextDetection = true;
 
   void _actualizarTextoReconocido(String texto) {
     setState(() {
       _textoReconocido = texto;
+      _isTextDetection = false;
     });
   }
 
@@ -61,7 +63,10 @@ class _SignToTextState extends State<SignToText> {
                   ),
                 ),
               ),
-              ListButtonText(),
+              ListButtonText(
+                textToTalk: _textoReconocido,
+                isDetection: _isTextDetection,
+              ),
             ],
           ),
         )
