@@ -13,7 +13,7 @@ class _SignLanguageScreenState extends State<CategoryScreen> {
     return Scaffold(
       appBar: AppBar(
        title: const Text(
-          "Categorias",
+          "CategoriasAA",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.blue,

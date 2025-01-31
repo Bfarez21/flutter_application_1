@@ -157,6 +157,7 @@ class _NavbarState extends State<Navbar> {
                           ),
                           onPressed: () {},
                         ),
+                        //agregar flutter ruta de para conectar la base
                         IconButton(
                           icon: Icon(
                             FontAwesomeIcons.gamepad,
@@ -174,6 +175,21 @@ class _NavbarState extends State<Navbar> {
                               MaterialPageRoute(
                                   builder: (context) => CategoryScreen()),
                             );
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            FontAwesomeIcons.shapes, // Icono para categorías
+                            color: !widget.transparent
+                                ? (widget.bgColor == Colors.white
+                                    ? Colors.black
+                                    : Colors.white)
+                                : Colors.white,
+                            size: 22.0,
+                          ),
+                          onPressed: () {
+                            Navigator.pushNamed(
+                                context, '/categories'); // Usa la ruta nombrada
                           },
                         ),
                       ],
