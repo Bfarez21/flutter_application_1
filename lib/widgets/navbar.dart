@@ -42,7 +42,7 @@ class Navbar extends StatefulWidget implements PreferredSizeWidget {
     this.searchAutofocus = false,
     this.backButton = false,
     this.noShadow = false,
-    this.bgColor = Colors.blue,
+    this.bgColor = const Color(0xFF151827),
     this.searchBar = false,
   });
 

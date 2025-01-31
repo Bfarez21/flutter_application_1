@@ -30,9 +30,22 @@ class _HomeScreenState extends State<Home> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.blue[700],
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.center, // Centro del degradado
+          radius: 1.0, // Radio del degradado ajustado
+          colors: [
+            Color(0xFF1F2642), // Color inicial
+            Color(0xFF060912), // Color final
+          ],
+          stops: [0.5, 1.5], // Posiciones de los colores
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent, // El fondo del Scaffold es transparente para mostrar el degradado
         appBar: Navbar(
           title: "Traductor",
           searchBar: false,
@@ -46,6 +59,10 @@ class _HomeScreenState extends State<Home> {
               child: isReversed ? TextToSign() : SignToText(),
             ),
           ],
-        ));
-  }
+        ),
+      ),
+    ),
+  );
+}
+
 }

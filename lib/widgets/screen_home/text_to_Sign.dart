@@ -27,7 +27,7 @@ class _TextToSignState extends State<TextToSign> {
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFF151827),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -35,8 +35,12 @@ class _TextToSignState extends State<TextToSign> {
             TextField(
               onChanged: (value) => textoReconocido,
               decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Escribe aquí...',
+                  border: InputBorder.none,
+                  hintText: 'Escribe aquí...',
+                  hintStyle:
+                      TextStyle(color: Color.fromRGBO(155, 163, 209, 1))),
+              style: TextStyle(
+                color: Color.fromRGBO(255, 255, 255, 1), // Color del texto que escribes
               ),
               maxLines: 3,
             ),

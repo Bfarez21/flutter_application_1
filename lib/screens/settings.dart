@@ -27,9 +27,6 @@ class _SettingsState extends State<Settings> {
             children: [
               // Sección Cuenta
               _buildSectionHeader("Cuenta"),
-              _buildMenuItem(Icons.person, "Editar perfil", onTap: () {
-                // Acción para Editar perfil
-              }),
               _buildMenuItem(Icons.notifications, "Notificaciones", onTap: () {
                 // Acción para Notificaciones
               }),
@@ -53,9 +50,9 @@ class _SettingsState extends State<Settings> {
               _buildMenuItem(Icons.flag, "Reportar un problema", onTap: () {
                 // Acción para Reportar un problema
               }),
-              _buildMenuItem(Icons.logout, "Log out", onTap: () {
+              //_buildMenuItem(Icons.logout, "Log out", onTap: () {
                 // Acción para Log out
-              }),
+              //}),
             ],
           ),
         ),

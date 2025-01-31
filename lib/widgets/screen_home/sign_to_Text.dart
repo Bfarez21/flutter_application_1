@@ -42,7 +42,7 @@ class _SignToTextState extends State<SignToText> {
           margin: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF151827),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -59,7 +59,7 @@ class _SignToTextState extends State<SignToText> {
                     _textoReconocido.isNotEmpty
                         ? _textoReconocido
                         : "Esperando detección...",
-                    style: TextStyle(color: Colors.black, fontSize: 16),
+                    style: TextStyle(color: Color.fromRGBO(155, 163, 209, 1), fontSize: 16),
                   ),
                 ),
               ),

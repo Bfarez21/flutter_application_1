@@ -18,7 +18,7 @@ class _LanguajeBankState extends State<LanguajeBank> {
         value: language["idioma"], // El valor será el idioma
         child: Text(
           language["idioma"]!,
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Color.fromRGBO(155, 163, 209, 1)),
         ),
       );
     }).toList();

@@ -14,7 +14,7 @@ class SelectionBar extends StatelessWidget {
       margin: const EdgeInsets.all(16.0),
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF151827),
         borderRadius: BorderRadius.circular(30), // Bordes redondeados
         boxShadow: [
           BoxShadow(
@@ -28,7 +28,7 @@ class SelectionBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Expanded(
-              child: Center(child: isReversed ? LanguajeBank() : Text("SIGN"))),
+              child: Center(child: isReversed ? LanguajeBank() : Text("SIGN", style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1))))),
           Expanded(
               child: Center(
                   child: GestureDetector(
@@ -36,14 +36,14 @@ class SelectionBar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Color.fromRGBO(155, 163, 209, 1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.swap_horiz, color: Colors.white),
             ),
           ))),
           Expanded(
-              child: Center(child: isReversed ? Text("SIGN") : LanguajeBank()))
+              child: Center(child: isReversed ? Text("SIGN", style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1))) : LanguajeBank()))
         ],
       ),
     );
