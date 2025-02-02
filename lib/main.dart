@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_application_1/screens/categories_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -86,7 +87,8 @@ class MaterialKitPROFlutter extends StatelessWidget {
         "/signin": (BuildContext context) => Login(),
         // "/camara": (BuildContext context) => Camara(),
         "/historial": (BuildContext context) => HistorialView(),
-        "/crearCuenta": (BuildContext context) => CrearCuenta()
+        "/crearCuenta": (BuildContext context) => CrearCuenta(),
+        '/categories': (context)=> CategoriesScreen(),
       },
     );
   }

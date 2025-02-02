@@ -154,7 +154,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   }
 
   Future<void> fetchGifs() async {
-    final response = await http.get(Uri.parse('http://192.168.52.56/api/gifs/'));
+    final response = await http.get(Uri.parse('http://192.168.52.56:8000/api/gifs/'));
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       setState(() {
