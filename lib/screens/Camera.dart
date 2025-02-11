@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:http/http.dart' as http;
-// ignore: depend_on_referenced_packages
-import 'package:http_parser/http_parser.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -18,72 +16,110 @@ class Camara extends StatefulWidget {
 
 class _CamaraState extends State<Camara> {
   CameraController? cameraController;
+  WebSocketChannel? _webSocket;
   bool _isProcessing = false;
-  Timer? _timer;
+  Timer? _frameTimer;
+  String textoAcumulado = "";
+
+  // Control de FPS para optimizar el rendimiento
+  static const int TARGET_FPS = 1; // Un frame por segundo como tenías antes
+  static const int FRAME_INTERVAL = 1000 ~/ TARGET_FPS;
 
   Future<void> initCamera() async {
     final cameras = await availableCameras();
     cameraController = CameraController(
       cameras[0],
       ResolutionPreset.medium,
-      imageFormatGroup: ImageFormatGroup.jpeg, // 🔹 Asegurar formato JPEG
+      imageFormatGroup: ImageFormatGroup.jpeg,
     );
 
     await cameraController!.initialize();
-
-    // 🔹 Desactivar el flash
     await cameraController!.setFlashMode(FlashMode.off);
+
     if (!mounted) return;
+
     setState(() {});
 
-    // 🔹 Capturar automáticamente cada 2 segundos
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      enviarImagenAlBackend();
-    });
+    // Iniciar WebSocket y captura de frames
+    _connectWebSocket();
+    _startFrameCapture();
   }
 
-  // Agrega una variable global para almacenar el texto acumulado
-  String textoAcumulado = "";
-
-  Future<void> enviarImagenAlBackend() async {
-    if (cameraController == null || _isProcessing) return;
-
+  void _connectWebSocket() {
     try {
-      _isProcessing = true;
+      final wsUrl = dotenv.env['WS_URL'] ?? 'ws://192.168.0.102:8080/ws';
+      _webSocket = WebSocketChannel.connect(Uri.parse(wsUrl));
 
-      XFile? imagen = await cameraController!.takePicture();
-      if (imagen == null) return;
-
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse("http://192.168.53.32:8000/predict/"),
+      _webSocket!.stream.listen(
+        (message) => _handleWebSocketMessage(message),
+        onError: (error) {
+          print('WebSocket error: $error');
+          _reconnectWebSocket();
+        },
+        onDone: () => _reconnectWebSocket(),
       );
+    } catch (e) {
+      print('Error conectando WebSocket: $e');
+      _reconnectWebSocket();
+    }
+  }
 
-      request.files.add(await http.MultipartFile.fromPath(
-        'file',
-        imagen.path,
-        contentType: MediaType('image', 'jpeg'),
-      ));
+  void _handleWebSocketMessage(dynamic message) {
+    try {
+      final data = jsonDecode(message);
+      String prediccion = data['prediccion'] ?? '';
 
-      var response = await request.send();
-      var responseData = await response.stream.bytesToString();
-
-      if (response.statusCode == 200) {
-        String textoDetectado = jsonDecode(responseData)['prediccion'];
-
-        // 🔹 Acumulamos el texto detectado en lugar de sobrescribirlo
-        textoAcumulado += " " + textoDetectado;
-
-        // 🔹 Actualizamos el estado con el texto acumulado
-        widget.onTextoDetectado(textoAcumulado);
-      } else {
-        print("Error en la respuesta del backend: $responseData");
+      if (prediccion.isNotEmpty) {
+        setState(() {
+          textoAcumulado += " " + prediccion;
+          widget.onTextoDetectado(textoAcumulado);
+        });
       }
     } catch (e) {
-      print("Error al enviar la imagen: $e");
+      print('Error procesando mensaje: $e');
+    }
+  }
+
+  void _startFrameCapture() {
+    _frameTimer = Timer.periodic(
+      Duration(milliseconds: FRAME_INTERVAL),
+      (_) => _captureAndSendFrame(),
+    );
+  }
+
+  Future<void> _captureAndSendFrame() async {
+    if (cameraController == null ||
+        !cameraController!.value.isInitialized ||
+        _isProcessing ||
+        _webSocket == null) return;
+
+    _isProcessing = true;
+
+    try {
+      final XFile imagen = await cameraController!.takePicture();
+      final bytes = await imagen.readAsBytes();
+
+      _webSocket!.sink.add(jsonEncode({
+        'frame': base64Encode(bytes),
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      }));
+    } catch (e) {
+      print('Error capturando frame: $e');
     } finally {
       _isProcessing = false;
     }
+  }
+
+  void _reconnectWebSocket() {
+    _webSocket?.sink.close();
+    Future.delayed(Duration(seconds: 2), _connectWebSocket);
+  }
+
+  void _resetTexto() {
+    setState(() {
+      textoAcumulado = "";
+      widget.onTextoDetectado(textoAcumulado);
+    });
   }
 
   @override
@@ -94,15 +130,21 @@ class _CamaraState extends State<Camara> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _frameTimer?.cancel();
+    _webSocket?.sink.close();
     cameraController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return cameraController != null && cameraController!.value.isInitialized
-        ? CameraPreview(cameraController!)
-        : Center(child: CircularProgressIndicator());
+    return Stack(
+      children: [
+        if (cameraController != null && cameraController!.value.isInitialized)
+          CameraPreview(cameraController!),
+        if (cameraController == null || !cameraController!.value.isInitialized)
+          Center(child: CircularProgressIndicator())
+      ],
+    );
   }
 }
