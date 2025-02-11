@@ -1,6 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+void main() async {
+  // Asegúrate de cargar las variables de entorno antes de correr la app.
+  await dotenv.load(fileName: ".env");
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SignSpeak',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: Color(0xFF1A1A2E),
+        scaffoldBackgroundColor: Color(0xFF1A1A2E),
+      ),
+      home: CategoriesScreen(),
+    );
+  }
+}
 
 class CategoriesScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
@@ -14,32 +37,103 @@ class CategoriesScreen extends StatelessWidget {
       "title": "Colores",
       "type": "colores"
     },
-    // Agregar más categorías
+    {
+      "img": AssetImage("assets/images/comidasbebidas.png"),
+      "title": "Comidas y Bebidas",
+      "type": "comidabenbidas"
+    },
+    {
+      "img": AssetImage("assets/images/diasSemana.jpeg"),
+      "title": "Días de la Semana",
+      "type": "diassemana"
+    },
+    {
+      "img": AssetImage("assets/images/preguntas.jpg"),
+      "title": "Preguntas",
+      "type": "preguntas"
+    },
+    {
+      "img": AssetImage("assets/images/profesiones.jpg"),
+      "title": "Profesiones",
+      "type": "profesiones"
+    },
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _buildCategoryGrid(),
+      backgroundColor: Color(0xFF1A1A2E), // Fondo azul oscuro
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildWelcomeHeader(),
+            _buildDescriptionInfo(),
+            _buildVerticalCarousel(context),
+          ],
+        ),
+      ),
     );
   }
 
+  // Encabezado de bienvenida
+  Widget _buildWelcomeHeader() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      alignment: Alignment.center,
+      child: Text(
+        '¡Explora las categorías!',
+        style: TextStyle(
+          color: Color(0xFF0EA5E9), // Azul brillante
+          fontSize: 26,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // Sección descriptiva de la pantalla
+  Widget _buildDescriptionInfo() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.only(bottom: 12),
+      child: Column(
+        children: [
+          Text(
+            'En ese carrusel tendrás diferentes categorías con los lenguajes de señas más comunes.',
+            style: TextStyle(
+              fontSize: 16,
+              color: Color(0xFFA8B2D1), // Texto claro
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8),
+          Divider(
+            thickness: 2,
+            color: Color(0xFF2A2D3E), // Divisor oscuro
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Método del AppBar con colores combinados
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       title: RichText(
+        textAlign: TextAlign.center,
         text: TextSpan(
           children: [
             TextSpan(
               text: "SignSpeak",
               style: TextStyle(
-                color: Colors.blue,
+                color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 shadows: [
                   Shadow(
                     blurRadius: 2,
-                    color: Colors.black12,
+                    color: Colors.black54,
                     offset: Offset(1, 1),
                   )
                 ],
@@ -48,7 +142,7 @@ class CategoriesScreen extends StatelessWidget {
             TextSpan(
               text: "\nAprende Lengua de Señas",
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.white70,
                 fontSize: 14,
                 fontWeight: FontWeight.w300,
               ),
@@ -56,73 +150,123 @@ class CategoriesScreen extends StatelessWidget {
           ],
         ),
       ),
+      centerTitle: true,
       flexibleSpace: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue[800]!, Colors.blue[400]!],
+            colors: [Color(0xFF1A1A2E), Color(0xFF16213E)], // Degradado oscuro
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
       ),
       elevation: 5,
+      iconTheme: IconThemeData(color: Colors.white),
     );
   }
 
-  Widget _buildCategoryGrid() {
-    return GridView.builder(
-      padding: EdgeInsets.all(16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // Dos columnas
-        crossAxisSpacing: 16, // Espacio horizontal entre elementos
-        mainAxisSpacing: 16, // Espacio vertical entre elementos
-        childAspectRatio: 1.2, // Relación de aspecto (ancho/alto)
+  // Carrusel vertical
+  Widget _buildVerticalCarousel(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16),
+      child: CarouselSlider(
+        options: CarouselOptions(
+          height: MediaQuery.of(context).size.height * 0.5,
+          scrollDirection: Axis.vertical,
+          autoPlay: true,
+          autoPlayInterval: Duration(seconds: 3),
+          enlargeCenterPage: true,
+          viewportFraction: 0.85,
+        ),
+        items: categories.map((category) {
+          return Builder(
+            builder: (BuildContext context) {
+              return GestureDetector(
+                onTap: () => _navigateToCategory(context, category),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      )
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      children: [
+                        Image(
+                          image: category['img'],
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Colors.blueAccent.withOpacity(0.7),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 20,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Text(
+                              category['title'],
+                              style: TextStyle(
+                                fontSize: 26,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    blurRadius: 6,
+                                    color: Colors.black,
+                                    offset: Offset(2, 2),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        }).toList(),
       ),
-      itemCount: categories.length,
-      itemBuilder: (context, index) {
-        return _buildCategoryCard(index, context);
-      },
     );
   }
 
-  Widget _buildCategoryCard(int index, BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(15),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryDetailScreen(
-                categoryType: categories[index]['type'],
-                categoryTitle: categories[index]['title'],
-              ),
-            ),
+  void _navigateToCategory(BuildContext context, Map<String, dynamic> category) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: Duration(milliseconds: 500),
+        pageBuilder: (_, __, ___) => CategoryDetailScreen(
+          categoryType: category['type'],
+          categoryTitle: category['title'],
+        ),
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
           );
         },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image(
-              image: categories[index]['img'],
-              width: MediaQuery.of(context).size.width * 0.3,
-              height: MediaQuery.of(context).size.height * 0.12,
-            ),
-            SizedBox(height: 10),
-            Text(
-              categories[index]['title'],
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue[800],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -154,7 +298,8 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   }
 
   Future<void> fetchGifs() async {
-    final response = await http.get(Uri.parse('http://192.168.52.56:8000/api/gifs/'));
+    final baseUrl = dotenv.env['BASE_URL_DEV'];
+    final response = await http.get(Uri.parse('$baseUrl/api/gifs/'));
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       setState(() {
@@ -170,6 +315,10 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         return 3;
       case 'colores':
         return 1;
+      case 'comidabenbidas':
+        return 2;
+      case 'diassemana':
+        return 4;
       default:
         return 0;
     }
@@ -182,48 +331,96 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         final nameMatch = gif.nombre.toLowerCase().contains(query.toLowerCase());
         return categoryMatch && nameMatch;
       }).toList();
-      
+
       if (filteredGifs.isNotEmpty) {
         selectedGif = filteredGifs.first.archivo;
       }
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.categoryTitle),
-        backgroundColor: Colors.blue[800],
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Color(0xFF16213E),
+    appBar: AppBar(
+      title: Text(
+        widget.categoryTitle,
+        style: TextStyle(color: Colors.white),  // Texto en blanco
       ),
-      body: Column(
-        children: [
-          _buildSearchBar(),
-          _buildGifDisplayArea(),
-          _buildGifButtons(),
-        ],
-      ),
-    );
-  }
+      backgroundColor: Color(0xFF1A1A2E),  // Fondo del AppBar
+      iconTheme: IconThemeData(color: Colors.white),  // Flecha en blanco
+    ),
+    body: Column(
+      children: [
+        _buildSearchBar(),
+        _buildInfoCard(),
+        _buildGifDisplayArea(),
+        _buildGifButtons(),
+      ],
+    ),
+  );
+}
 
   Widget _buildSearchBar() {
     return Padding(
       padding: EdgeInsets.all(16),
       child: TextField(
         controller: searchController,
+        style: TextStyle(color: Colors.white),
         decoration: InputDecoration(
+          filled: true,
+          fillColor: Color(0xFF2A2D3E), // Fondo oscuro
           hintText: 'Buscar GIF...',
-          prefixIcon: Icon(Icons.search, color: Colors.blue),
+          hintStyle: TextStyle(color: Colors.white70),
+          prefixIcon: Icon(Icons.search, color: Colors.white70),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(color: Colors.blue),
+            borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(color: Colors.blue, width: 2),
+            borderSide: BorderSide(color: Color(0xFF0EA5E9), width: 2),
           ),
+          contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
         ),
         onChanged: filterGifs,
+      ),
+    );
+  }
+
+  Widget _buildInfoCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        color: Color(0xFF2A2D3E), // Fondo oscuro
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(
+                widget.categoryTitle,
+                style: TextStyle(
+                  fontSize: 22,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Aquí aprenderás palabras en lengua de señas de esta categoría.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -236,17 +433,17 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             ? Container(
                 margin: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(25), // Bordes redondeados
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 15,
+                      offset: Offset(0, 6),
                     )
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(25), // Radio aumentado
                   child: Image.network(
                     selectedGif!,
                     fit: BoxFit.contain,
@@ -274,7 +471,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
                   'Selecciona un GIF',
                   style: TextStyle(
                     fontSize: 18,
-                    color: Colors.grey[600],
+                    color: Colors.white70,
                   ),
                 ),
               ),
@@ -287,14 +484,14 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
       height: MediaQuery.of(context).size.height * 0.15,
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Color(0xFF1A1A2E), // Fondo oscuro
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
+            color: Colors.black45,
             blurRadius: 10,
             offset: Offset(0, -2),
           )
@@ -309,14 +506,21 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
             return ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: selectedGif == gif.archivo
-                    ? Colors.blue[800]
-                    : Colors.blue[400],
+                    ? Color(0xFF0EA5E9) // Azul brillante para selección
+                    : Color(0xFF2A2D3E), // Fondo oscuro
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                elevation: 3,
+                elevation: 5,
+                shadowColor: Colors.black.withOpacity(0.3),
+                side: BorderSide(
+                  color: selectedGif == gif.archivo
+                      ? Colors.white
+                      : Colors.transparent,
+                  width: 1.5,
+                ),
               ),
               onPressed: () {
                 setState(() {

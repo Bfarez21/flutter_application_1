@@ -169,12 +169,9 @@ class _NavbarState extends State<Navbar> {
                             size: 22.0,
                           ),
                           // redirigo a otra ventana
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CategoryScreen()),
-                            );
+                           onPressed: () {
+                            Navigator.pushNamed(
+                                context, '/juegos'); // Usa la ruta nombrada
                           },
                         ),
                         IconButton(

@@ -15,6 +15,7 @@ import 'package:flutter_application_1/screens/signIn.dart';
 import 'package:flutter_application_1/screens/Camera.dart';
 import 'package:flutter_application_1/screens/Historial.dart';
 import 'package:flutter_application_1/screens/crearCuenta.dart';
+import 'package:flutter_application_1/screens/games_menu_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,6 +90,7 @@ class MaterialKitPROFlutter extends StatelessWidget {
         "/historial": (BuildContext context) => HistorialView(),
         "/crearCuenta": (BuildContext context) => CrearCuenta(),
         '/categories': (context)=> CategoriesScreen(),
+        '/juegos': (context)=> GamesMenuScreen(),
       },
     );
   }

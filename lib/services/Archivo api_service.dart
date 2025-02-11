@@ -2,9 +2,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/category_model.dart'; // Importa el modelo de categoría
 import '../models/gif_model.dart'; // Importa el modelo de GIF
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.52.56:8000/api/';
+ //static const String baseUrl = 'http://192.168.52.57:8000/api/';
+  static  String baseUrl = dotenv.env['BASE_URL_DEV']!;
 
   static Future<List<Category>> getCategories() async {
     final response = await http.get(Uri.parse('${baseUrl}categories/'));
