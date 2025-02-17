@@ -15,63 +15,62 @@ class SignLanguageInput extends StatefulWidget {
 
 class _SignLanguageInputState extends State<SignLanguageInput> {
   final TextEditingController _controller = TextEditingController();
-  String _lettersText = ''; // Para mantener el texto en letras
+  String _lettersText = '';
+  List<String> _signImages = [];
 
   final List<List<Map<String, String>>> keyboardLayout = [
     [
-      {'letter': '1', 'sign': '1️⃣'},
-      {'letter': '2', 'sign': '2️⃣'},
-      {'letter': '3', 'sign': '3️⃣'},
-      {'letter': '4', 'sign': '4️⃣'},
-      {'letter': '5', 'sign': '5️⃣'},
-      {'letter': '6', 'sign': '6️⃣'},
-      {'letter': '7', 'sign': '7️⃣'},
-      {'letter': '8', 'sign': '8️⃣'},
-      {'letter': '9', 'sign': '9️⃣'},
-      {'letter': '0', 'sign': '0️⃣'},
+      {'letter': '1', 'sign': 'assets/keyboard-icon/1.png'},
+      {'letter': '2', 'sign': 'assets/keyboard-icon/2.png'},
+      {'letter': '3', 'sign': 'assets/keyboard-icon/3.png'},
+      {'letter': '4', 'sign': 'assets/keyboard-icon/4.png'},
+      {'letter': '5', 'sign': 'assets/keyboard-icon/5.png'},
+      {'letter': '6', 'sign': 'assets/keyboard-icon/6.png'},
+      {'letter': '7', 'sign': 'assets/keyboard-icon/7.png'},
+      {'letter': '8', 'sign': 'assets/keyboard-icon/8.png'},
+      {'letter': '9', 'sign': 'assets/keyboard-icon/9.png'},
+      {'letter': '0', 'sign': 'assets/keyboard-icon/0.png'},
     ],
     [
-      {'letter': 'Q', 'sign': '✌️'},
-      {'letter': 'W', 'sign': '👐'},
-      {'letter': 'E', 'sign': '🤟'},
-      {'letter': 'R', 'sign': '🤘'},
-      {'letter': 'T', 'sign': '👆'},
-      {'letter': 'Y', 'sign': '👌'},
-      {'letter': 'U', 'sign': '🤙'},
-      {'letter': 'I', 'sign': '👍'},
-      {'letter': 'O', 'sign': '✊'},
-      {'letter': 'P', 'sign': '🤞'},
+      {'letter': 'Q', 'sign': 'assets/keyboard-icon/q.png'},
+      {'letter': 'W', 'sign': 'assets/keyboard-icon/w.png'},
+      {'letter': 'E', 'sign': 'assets/keyboard-icon/e.png'},
+      {'letter': 'R', 'sign': 'assets/keyboard-icon/r.png'},
+      {'letter': 'T', 'sign': 'assets/keyboard-icon/t.png'},
+      {'letter': 'Y', 'sign': 'assets/keyboard-icon/y.png'},
+      {'letter': 'U', 'sign': 'assets/keyboard-icon/u.png'},
+      {'letter': 'I', 'sign': 'assets/keyboard-icon/i.png'},
+      {'letter': 'O', 'sign': 'assets/keyboard-icon/o.png'},
+      {'letter': 'P', 'sign': 'assets/keyboard-icon/p.png'},
     ],
     [
-      {'letter': 'A', 'sign': '👋'},
-      {'letter': 'S', 'sign': '🖐️'},
-      {'letter': 'D', 'sign': '✋'},
-      {'letter': 'F', 'sign': '👊'},
-      {'letter': 'G', 'sign': '🤚'},
-      {'letter': 'H', 'sign': '🖖'},
-      {'letter': 'J', 'sign': '👇'},
-      {'letter': 'K', 'sign': '👉'},
-      {'letter': 'L', 'sign': '👈'},
-      {'letter': 'Ñ', 'sign': '🤝'},
+      {'letter': 'A', 'sign': 'assets/keyboard-icon/a.png'},
+      {'letter': 'S', 'sign': 'assets/keyboard-icon/s.png'},
+      {'letter': 'D', 'sign': 'assets/keyboard-icon/d.png'},
+      {'letter': 'F', 'sign': 'assets/keyboard-icon/f.png'},
+      {'letter': 'G', 'sign': 'assets/keyboard-icon/g.png'},
+      {'letter': 'H', 'sign': 'assets/keyboard-icon/h.png'},
+      {'letter': 'J', 'sign': 'assets/keyboard-icon/j.png'},
+      {'letter': 'K', 'sign': 'assets/keyboard-icon/k.png'},
+      {'letter': 'L', 'sign': 'assets/keyboard-icon/l.png'},
+      {'letter': 'Ñ', 'sign': 'assets/keyboard-icon/enie.png'},
     ],
     [
-      {'letter': 'Z', 'sign': '💪'},
-      {'letter': 'X', 'sign': '🙌'},
-      {'letter': 'C', 'sign': '👏'},
-      {'letter': 'V', 'sign': '🤲'},
-      {'letter': 'B', 'sign': '✍️'},
-      {'letter': 'N', 'sign': '👎'},
-      {'letter': 'M', 'sign': '🤜'},
+      {'letter': 'Z', 'sign': 'assets/keyboard-icon/z.png'},
+      {'letter': 'X', 'sign': 'assets/keyboard-icon/x.png'},
+      {'letter': 'C', 'sign': 'assets/keyboard-icon/c.png'},
+      {'letter': 'V', 'sign': 'assets/keyboard-icon/v.png'},
+      {'letter': 'B', 'sign': 'assets/keyboard-icon/b.png'},
+      {'letter': 'N', 'sign': 'assets/keyboard-icon/n.png'},
+      {'letter': 'M', 'sign': 'assets/keyboard-icon/m.png'},
     ],
   ];
 
-  // Mapa para convertir letras a signos
   Map<String, String> _letterToSign = {};
 
   @override
   void initState() {
     super.initState();
-    // Inicializar el mapa de conversión
     for (var row in keyboardLayout) {
       for (var key in row) {
         _letterToSign[key['letter']!] = key['sign']!;
@@ -106,67 +105,42 @@ class _SignLanguageInputState extends State<SignLanguageInput> {
     );
   }
 
-  String _convertTextToSigns(String text) {
-    String result = '';
-    for (int i = 0; i < text.length; i++) {
-      String char = text[i].toUpperCase();
-      if (_letterToSign.containsKey(char)) {
-        result += _letterToSign[char]!;
-      } else if (char == ' ') {
-        result += ' ';
-      } else if (char == '\n') {
-        result += '\n';
+  void _insertLetter(String letter) {
+    // Actualizar el texto en letras
+    _lettersText += letter;
+
+    // Actualizar el controlador de texto
+    _controller.text = _lettersText;
+
+    // Actualizar la lista de imágenes de señas
+    if (letter != " " && letter != "\n") {
+      String? signPath = _letterToSign[letter.toUpperCase()];
+      if (signPath != null && signPath.isNotEmpty) {
+        _signImages.add(signPath);
       }
     }
-    return result;
-  }
 
-  void _insertLetter(String letter) {
-    final selection = _controller.selection;
+    setState(() {}); // Actualizar el estado
 
-    // Actualizar el texto en letras
-    _lettersText = _lettersText.replaceRange(
-      selection.start,
-      selection.end,
-      letter,
-    );
-
-    // Convertir a signos
-    final signsText = _convertTextToSigns(_lettersText);
-
-    // Actualizar el controlador con los signos
-    _controller.value = TextEditingValue(
-      text: signsText,
-      selection: TextSelection.collapsed(
-        offset: selection.baseOffset + letter.length,
-      ),
-    );
-
-    // Enviar el texto en letras al padre
+    // Notificar al padre
     widget.onTextoDetectado(_lettersText);
   }
 
   void _handleBackspace() {
     if (_lettersText.isEmpty) return;
 
-    final selection = _controller.selection;
-    if (selection.baseOffset == 0) return;
-
-    // Eliminar el último carácter del texto en letras
+    // Eliminar el último carácter del texto
     _lettersText = _lettersText.substring(0, _lettersText.length - 1);
+    _controller.text = _lettersText;
 
-    // Convertir a signos
-    final signsText = _convertTextToSigns(_lettersText);
+    // Eliminar la última imagen si existe
+    if (_signImages.isNotEmpty) {
+      _signImages.removeLast();
+    }
 
-    // Actualizar el controlador con los signos
-    _controller.value = TextEditingValue(
-      text: signsText,
-      selection: TextSelection.collapsed(
-        offset: signsText.length,
-      ),
-    );
+    setState(() {}); // Actualizar el estado
 
-    // Enviar el texto actualizado al padre
+    // Notificar al padre
     widget.onTextoDetectado(_lettersText);
   }
 
@@ -190,9 +164,11 @@ class _SignLanguageInputState extends State<SignLanguageInput> {
                     child: Container(
                       height: 42,
                       child: Center(
-                        child: Text(
+                        child: Image.asset(
                           key['sign']!,
-                          style: TextStyle(fontSize: 18),
+                          width: 30,
+                          height: 30,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
@@ -286,22 +262,63 @@ class _SignLanguageInputState extends State<SignLanguageInput> {
       ),
       child: Column(
         children: [
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: 'Escribe aquí...',
-              hintStyle: TextStyle(
-                color: Color.fromRGBO(155, 163, 209, 1),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _showKeyboard(context),
+              child: Container(
+                constraints: BoxConstraints(minHeight: 120),
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    if (_signImages.isEmpty)
+                      Positioned(
+                        left: 8,
+                        top: 8,
+                        child: Text(
+                          'Escribe aquí...',
+                          style: TextStyle(
+                            color: Color.fromRGBO(155, 163, 209, 1),
+                          ),
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          // Imágenes de señas
+                          if (_signImages.isNotEmpty)
+                            Wrap(
+                              spacing: 4,
+                              runSpacing: 4,
+                              children: _signImages
+                                  .map((imagePath) => Image.asset(
+                                        imagePath,
+                                        width: 30,
+                                        height: 30,
+                                        fit: BoxFit.contain,
+                                      ))
+                                  .toList(),
+                            ),
+                          // TextField oculto para mantener el texto
+                          TextField(
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            ),
+                            style: TextStyle(
+                              color: Colors.transparent,
+                              height: 0,
+                            ),
+                            enabled: false,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            style: TextStyle(
-              color: Color.fromRGBO(12, 12, 12, 1),
-            ),
-            maxLines: 3,
-            showCursor: true,
-            readOnly: true,
-            onTap: () => _showKeyboard(context),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
