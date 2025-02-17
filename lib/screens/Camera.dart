@@ -7,8 +7,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Camara extends StatefulWidget {
   final Function(String) onTextoDetectado;
+  final VoidCallback toggleLayout;
 
-  Camara({required this.onTextoDetectado});
+  Camara({
+    required this.onTextoDetectado,
+    required this.toggleLayout,
+  });
 
   @override
   _CamaraState createState() => _CamaraState();
@@ -20,13 +24,14 @@ class _CamaraState extends State<Camara> {
   bool _isProcessing = false;
   Timer? _frameTimer;
   String textoAcumulado = "";
+  List<CameraDescription> cameras = [];
+  int selectedCameraIndex = 0;
 
-  // Control de FPS para optimizar el rendimiento
-  static const int TARGET_FPS = 1; // Un frame por segundo como tenías antes
+  static const int TARGET_FPS = 1;
   static const int FRAME_INTERVAL = 1000 ~/ TARGET_FPS;
 
   Future<void> initCamera() async {
-    final cameras = await availableCameras();
+    cameras = await availableCameras();
     cameraController = CameraController(
       cameras[0],
       ResolutionPreset.medium,
@@ -40,14 +45,33 @@ class _CamaraState extends State<Camara> {
 
     setState(() {});
 
-    // Iniciar WebSocket y captura de frames
     _connectWebSocket();
     _startFrameCapture();
   }
 
+  void _switchCamera() async {
+    final cameras = await availableCameras();
+    selectedCameraIndex = selectedCameraIndex == 0 ? 1 : 0;
+
+    if (cameraController != null) {
+      await cameraController!.dispose();
+    }
+
+    cameraController = CameraController(
+      cameras[selectedCameraIndex],
+      ResolutionPreset.medium,
+      imageFormatGroup: ImageFormatGroup.jpeg,
+    );
+
+    await cameraController!.initialize();
+    await cameraController!.setFlashMode(FlashMode.off);
+
+    if (mounted) setState(() {});
+  }
+
   void _connectWebSocket() {
     try {
-      final wsUrl = dotenv.env['WS_URL'] ?? 'ws://192.168.0.102:8080/ws';
+      final wsUrl = dotenv.env['WS_URL'] ?? 'ws://192.168.52.39:8080/ws';
       _webSocket = WebSocketChannel.connect(Uri.parse(wsUrl));
 
       _webSocket!.stream.listen(
@@ -138,12 +162,71 @@ class _CamaraState extends State<Camara> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    // Calculamos el ancho de la visualización de la cámara
+    final cameraWidth = MediaQuery.of(context).size.width -
+        40; // Restamos el margen horizontal (20 + 20)
+
+    return Column(
       children: [
-        if (cameraController != null && cameraController!.value.isInitialized)
-          CameraPreview(cameraController!),
-        if (cameraController == null || !cameraController!.value.isInitialized)
-          Center(child: CircularProgressIndicator())
+        // Contenedor para la cámara (con espacio reducido arriba)
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 2), // Margen horizontal y reducido arriba
+            /*decoration: BoxDecoration(
+              border:
+                  Border.all(color: Colors.grey, width: 2), // Borde opcional
+            )*/
+            child: Stack(
+              children: [
+                if (cameraController != null &&
+                    cameraController!.value.isInitialized)
+                  CameraPreview(cameraController!),
+                if (cameraController == null ||
+                    !cameraController!.value.isInitialized)
+                  Center(child: CircularProgressIndicator()),
+
+                // Botón para cambiar cámara (dentro del frame de la cámara)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: FloatingActionButton(
+                    mini: true,
+                    onPressed: _switchCamera,
+                    child: Icon(Icons.flip_camera_ios),
+                    backgroundColor: Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Espacio para el botón del teclado (altura mínima, mismo ancho que la cámara)
+        Container(
+          margin: EdgeInsets.only(
+              left: 20, right: 20, top: 5, bottom: 2), // Margen reducido
+          height: 40, // Altura reducida para el botón del teclado
+          width:
+              cameraWidth - 65, // Mismo ancho que la visualización de la cámara
+          alignment: Alignment.center,
+          child: TextButton(
+            onPressed: widget.toggleLayout,
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.black54, // Color de fondo
+              minimumSize: Size(cameraWidth - 65,
+                  40), // Mismo ancho que la cámara y altura reducida
+              padding: EdgeInsets.zero, // Eliminar padding interno
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero, // Sin bordes redondeados
+              ),
+            ),
+            child: Icon(Icons.keyboard,
+                size: 18, color: Colors.white), // Icono del teclado
+          ),
+        ),
       ],
     );
   }
