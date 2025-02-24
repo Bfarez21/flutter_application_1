@@ -49,9 +49,10 @@ dependencies:
   tflite: ^1.1.2 # Dependencia para utilizar el modelo IA
   vertical_card_pager: ^1.4.0
   cached_network_image: ^3.3.0
-  http: ^1.0.0 #  Para realizar solicitudes HTTP a la API Django.
   dio: ^5.3.2
   permission_handler: ^10.0.0
+  http: ^1.0.0 #  Para realizar solicitudes HTTP a la API Django.
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -62,6 +63,7 @@ dependencies:
   speech_to_text: ^6.6.0
   share_plus: ^10.0.0
   web_socket_channel: ^3.0.2
+  device_info_plus: ^9.0.0
 
 dev_dependencies:
   flutter_test:
