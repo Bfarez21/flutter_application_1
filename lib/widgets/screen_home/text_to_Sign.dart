@@ -11,17 +11,37 @@ class TextToSign extends StatefulWidget {
 
 class _TextToSignState extends State<TextToSign> {
   String textoReconocido = "";
+  String ingresoTexto = ""; // Movido fuera del build
+  final TextEditingController _textController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Agregar listener al controller
+    _textController.addListener(() {
+      setState(() {
+        ingresoTexto = _textController.text;
+      });
+    });
+  }
 
   void _actualizarTextoReconocido(String texto) {
+    print("Actualizando texto reconocido: $texto"); // Debug print
     setState(() {
       textoReconocido = texto;
+      ingresoTexto = texto;
+      _textController.text = texto; // Actualizar el TextField
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    String ingresoTexto = "";
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Column(children: [
       Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -33,29 +53,30 @@ class _TextToSignState extends State<TextToSign> {
         child: Column(
           children: [
             TextField(
-              onChanged: (value) => textoReconocido,
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Escribe aquí...',
-                  hintStyle:
-                      TextStyle(color: Color.fromRGBO(155, 163, 209, 1))),
-              style: TextStyle(
-                color: Color.fromRGBO(255, 255, 255, 1), // Color del texto que escribes
+              controller: _textController, // Usar el controller
+              onChanged: (value) {
+                setState(() {
+                  ingresoTexto = value;
+                  textoReconocido = value;
+                });
+              },
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Escribe aquí...',
+                hintStyle: TextStyle(color: Color.fromRGBO(155, 163, 209, 1)),
+              ),
+              style: const TextStyle(
+                color: Color.fromRGBO(255, 255, 255, 1),
               ),
               maxLines: 3,
             ),
             ListButtonSign(
-                isButtonSign: false,
-                onTextoEntered: (texto) {
-                  _actualizarTextoReconocido(
-                      texto); // Actualizas el texto detectado
-                })
+              isButtonSign: false,
+              onTextoEntered: _actualizarTextoReconocido,
+            )
           ],
         ),
       ),
-
-      /// Agregar el carrusel debajo del TextField
-      // ProductCarousel(imgArray: SignLanguageData.exampleImages),
       Expanded(
         child: Center(
           child: ingresoTexto.isNotEmpty
@@ -63,7 +84,6 @@ class _TextToSignState extends State<TextToSign> {
                   future: Future(() {
                     List<String> gifs =
                         TextToSignLogic.translateTextToGifs(ingresoTexto);
-                    // Por ahora mostraremos solo el primer GIF
                     return gifs.isNotEmpty
                         ? Image.asset(
                             gifs.first,
@@ -81,22 +101,21 @@ class _TextToSignState extends State<TextToSign> {
                     if (snapshot.hasData) {
                       return snapshot.data!;
                     }
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   },
                 )
               : Container(
                   child: Text(
-                    "Ingresa una palabra para ver ",
+                    "Ingresa una palabra para ver",
                     style: TextStyle(color: Colors.white.withOpacity(0.7)),
                   ),
                 ),
         ),
       ),
       ListButtonSign(
-          isButtonSign: true,
-          onTextoEntered: (texto) {
-            _actualizarTextoReconocido(texto); // Actualizas el texto detectado
-          })
+        isButtonSign: true,
+        onTextoEntered: _actualizarTextoReconocido,
+      )
     ]);
   }
 }

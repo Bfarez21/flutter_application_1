@@ -1,3 +1,4 @@
+// list_button_sign.dart
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:share_plus/share_plus.dart';
@@ -26,7 +27,6 @@ class _ListButtonSignState extends State<ListButtonSign> {
   bool _isDownloading = false;
   bool _isSharing = false;
   String _currentText = '';
-  bool _speechInitialized = false;
   final Dio _dio = Dio();
 
   final String testGifUrl =
@@ -37,24 +37,20 @@ class _ListButtonSignState extends State<ListButtonSign> {
     super.initState();
     _speech = stt.SpeechToText();
     _initializeSpeech();
-    _checkPermissions();
   }
 
   Future<void> _checkPermissions() async {
     if (Platform.isAndroid) {
-      // Verificar permisos de almacenamiento
       final storageStatus = await Permission.storage.status;
       if (storageStatus.isDenied) {
         await Permission.storage.request();
       }
 
-      // Verificar permisos de micrófono
       final micStatus = await Permission.microphone.status;
       if (micStatus.isDenied) {
         await Permission.microphone.request();
       }
 
-      // Verificar permisos de reconocimiento de voz
       final speechStatus = await Permission.speech.status;
       if (speechStatus.isDenied) {
         await Permission.speech.request();
@@ -65,13 +61,11 @@ class _ListButtonSignState extends State<ListButtonSign> {
   Future<bool> _requestPermissions() async {
     if (Platform.isAndroid) {
       final status = await Permission.storage.request();
-
       if (!status.isGranted) {
         _showMessage(
           'Se necesitan permisos para guardar archivos. Habilítalos en configuración.',
           isError: true,
         );
-
         await openAppSettings();
         return false;
       }
@@ -80,43 +74,29 @@ class _ListButtonSignState extends State<ListButtonSign> {
   }
 
   Future<void> _initializeSpeech() async {
-    try {
-      // Asegurarse de que los permisos estén concedidos antes de inicializar
-      if (Platform.isAndroid) {
-        final micPermission = await Permission.microphone.status;
-        final speechPermission = await Permission.speech.status;
+    print("Inicializando reconocimiento de voz");
+    await _checkPermissions();
 
-        if (!micPermission.isGranted || !speechPermission.isGranted) {
-          _showMessage('Se requieren permisos de micrófono y voz',
-              isError: true);
-          return;
-        }
-      }
-
-      _speechInitialized = await _speech.initialize(
-        onStatus: (status) {
-          print('Status: $status');
-          if (status == 'done' || status == 'notListening') {
-            setState(() => _isListening = false);
-          }
-        },
-        onError: (errorNotification) {
-          print('Error: $errorNotification');
+    bool available = await _speech.initialize(
+      onStatus: (status) {
+        print("Estado del reconocimiento: $status");
+        if (status == 'done' || status == 'notListening') {
           setState(() => _isListening = false);
-          _showMessage('Error: ${errorNotification.errorMsg}', isError: true);
-        },
-        debugLogging: true,
-      );
+        }
+      },
+      onError: (errorNotification) {
+        print('Error en el reconocimiento de voz: $errorNotification');
+        setState(() => _isListening = false);
+        _showMessage('Error en el reconocimiento de voz', isError: true);
+      },
+    );
 
-      if (!_speechInitialized) {
-        _showMessage('No se pudo inicializar el reconocimiento de voz',
-            isError: true);
-      }
-    } catch (e) {
-      print('Error al inicializar el reconocimiento de voz: $e');
-      _showMessage('Error al inicializar el reconocimiento de voz',
-          isError: true);
-      _speechInitialized = false;
+    if (!available) {
+      print("El reconocimiento de voz no está disponible");
+      _showMessage(
+        'El reconocimiento de voz no está disponible en este dispositivo',
+        isError: true,
+      );
     }
   }
 
@@ -151,9 +131,7 @@ class _ListButtonSignState extends State<ListButtonSign> {
   Future<void> _downloadGif() async {
     if (_isDownloading) return;
 
-    if (!await _requestPermissions()) {
-      return;
-    }
+    if (!await _requestPermissions()) return;
 
     try {
       setState(() => _isDownloading = true);
@@ -196,56 +174,44 @@ class _ListButtonSignState extends State<ListButtonSign> {
     }
   }
 
-  Future<void> _listen() async {
-    if (!_speechInitialized) {
-      await _initializeSpeech();
-    }
+  Future<void> _startListening() async {
+    print("Iniciando reconocimiento de voz");
 
-    // Verificar permisos antes de iniciar el reconocimiento
-    final micPermission = await Permission.microphone.status;
-    if (!micPermission.isGranted) {
-      _showMessage('Se requieren permisos de micrófono', isError: true);
-      return;
-    }
+    if (!_isListening) {
+      final available = await _speech.initialize();
 
-    try {
-      if (!_isListening) {
-        if (_speechInitialized) {
-          setState(() => _isListening = true);
-
+      if (available) {
+        setState(() => _isListening = true);
+        try {
           await _speech.listen(
             onResult: (result) {
-              setState(() {
-                _currentText = result.recognizedWords;
-                widget.onTextoEntered(_currentText);
-              });
+              print("Texto reconocido: ${result.recognizedWords}");
+              setState(() => _currentText = result.recognizedWords);
 
               if (result.finalResult) {
-                setState(() {
-                  _isListening = false;
-                });
+                print("Texto final: ${result.recognizedWords}");
+                widget.onTextoEntered(result.recognizedWords);
               }
             },
-            localeId: 'es-419', // Usa el idioma correcto
+            localeId: 'es-ES',
+            listenMode: stt.ListenMode.confirmation,
             cancelOnError: true,
-            listenMode: stt.ListenMode.dictation,
-            partialResults: true,
-            listenFor: Duration(seconds: 30),
-            pauseFor: Duration(seconds: 3),
+            partialResults: false,
           );
-        } else {
-          _showMessage('Por favor, concede los permisos necesarios',
-              isError: true);
+          _showMessage('Escuchando...', isError: false);
+        } catch (e) {
+          print("Error al escuchar: $e");
+          setState(() => _isListening = false);
+          _showMessage('Error al iniciar el reconocimiento', isError: true);
         }
-      } else {
-        setState(() => _isListening = false);
-        await _speech.stop();
       }
-    } catch (e) {
-      print('Error en el reconocimiento de voz: $e');
-      setState(() => _isListening = false);
-      _showMessage('Error en el reconocimiento de voz: $e', isError: true);
     }
+  }
+
+  void _stopListening() {
+    print("Deteniendo reconocimiento de voz");
+    _speech.stop();
+    setState(() => _isListening = false);
   }
 
   void _showMessage(String message, {bool isError = false}) {
@@ -262,7 +228,7 @@ class _ListButtonSignState extends State<ListButtonSign> {
 
   @override
   void dispose() {
-    _speech.cancel();
+    _speech.stop();
     super.dispose();
   }
 
@@ -286,7 +252,7 @@ class _ListButtonSignState extends State<ListButtonSign> {
             _isListening ? Icons.mic : Icons.mic_none,
             color: _isListening ? Colors.red : Colors.grey,
           ),
-          onPressed: _listen,
+          onPressed: _isListening ? _stopListening : _startListening,
           tooltip: 'Reconocimiento de voz',
         ),
       ],
