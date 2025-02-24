@@ -46,6 +46,11 @@ class AuthService {
     }
   }
 
+   // Obtener el ID de Firebase del usuario actual
+  String? getCurrentUserId() {
+    return _auth.currentUser?.uid;
+  }
+
   // Cerrar sesión de Google y Firebase
   Future<void> handleSignOut() async {
     try {

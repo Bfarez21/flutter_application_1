@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_application_1/services/auth_service.dart'; // Add this line to import AuthService
+import 'package:flutter_application_1/services/auth_service.dart';
 
 class MaterialDrawer extends StatefulWidget {
   final String currentPage;
-
-  static const Color primaryBlue = Color(0xFF2196F3);
-  static const Color darkBlue = Color(0xFF1565C0);
-  static const Color lightBlue = Color(0xFFBBDEFB);
+  static const Color primaryBlue = Color.fromARGB(255, 10, 3, 64);
+  static const Color darkBlue = Color.fromARGB(255, 4, 46, 94);
+  static const Color accentBlue = Color(0xFF6BD6FF); // Nuevo color acento
+  static const Color lightText = Color(0xFFF0F4F8);  // Color texto claro
 
   MaterialDrawer({this.currentPage = ""});
 
@@ -31,7 +31,6 @@ class _MaterialDrawerState extends State<MaterialDrawer> {
     });
   }
 
-  // Función para calcular tamaños responsivos con límites
   double getResponsiveSize(double size, double min, double max) {
     return size.clamp(min, max);
   }
@@ -39,30 +38,11 @@ class _MaterialDrawerState extends State<MaterialDrawer> {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-    final bool isWeb = screenSize.width > 600; // Detectar si es web
-
-    // Calcular tamaños con límites
-    final double drawerWidth = isWeb 
-        ? 320.0 // Ancho fijo para web
-        : screenSize.width * 0.85; // 85% para móvil
-    
-    final double nameFontSize = getResponsiveSize(
-      drawerWidth * 0.05,
-      16.0, // mínimo 16px
-      24.0  // máximo 24px
-    );
-    
-    final double emailFontSize = getResponsiveSize(
-      drawerWidth * 0.035,
-      14.0, // mínimo 14px
-      18.0  // máximo 18px
-    );
-
-    final double avatarRadius = getResponsiveSize(
-      screenSize.width * 0.1,
-      30.0,  // mínimo 30px
-      50.0   // máximo 50px
-    );
+    final bool isWeb = screenSize.width > 600;
+    final double drawerWidth = isWeb ? 320.0 : screenSize.width * 0.85;
+    final double nameFontSize = getResponsiveSize(drawerWidth * 0.05, 16.0, 24.0);
+    final double emailFontSize = getResponsiveSize(drawerWidth * 0.035, 14.0, 18.0);
+    final double avatarRadius = getResponsiveSize(screenSize.width * 0.1, 30.0, 50.0);
 
     return Drawer(
       child: Container(
@@ -71,126 +51,151 @@ class _MaterialDrawerState extends State<MaterialDrawer> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [MaterialDrawer.darkBlue, Colors.white],
-            stops: [0.3, 0.3],
+            colors: [
+              MaterialDrawer.darkBlue.withOpacity(0.9),
+              MaterialDrawer.primaryBlue.withOpacity(0.8),
+            ],
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 16,
+              offset: Offset(2, 0),
+            )
+          ],
         ),
         child: Column(
           children: [
-            SafeArea(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: MaterialDrawer.lightBlue,
-                      backgroundImage: currentUser?.photoURL != null
-                          ? NetworkImage(currentUser!.photoURL!)
-                          : const AssetImage('assets/default_profile.png') as ImageProvider,
-                      radius: avatarRadius,
-                    ),
-                    SizedBox(height: 16),
-                    Container(
-                      constraints: BoxConstraints(
-                        maxWidth: isWeb ? 280 : double.infinity,
-                      ),
-                      child: Text(
-                        currentUser?.displayName ?? "Usuario",
-                        style: TextStyle(
-                          fontSize: nameFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Container(
-                      constraints: BoxConstraints(
-                        maxWidth: isWeb ? 280 : double.infinity,
-                      ),
-                      child: Text(
-                        currentUser?.email ?? "",
-                        style: TextStyle(
-                          fontSize: emailFontSize,
-                          color: Colors.white70,
-                        ),
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.only(top: 40, bottom: 24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [MaterialDrawer.darkBlue, MaterialDrawer.primaryBlue],
                 ),
+              ),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: avatarRadius,
+                    backgroundColor: MaterialDrawer.lightText.withOpacity(0.1),
+                    child: ClipOval(
+                      child: currentUser?.photoURL != null
+                          ? Image.network(currentUser!.photoURL!, fit: BoxFit.cover)
+                          : Icon(Icons.person, color: MaterialDrawer.lightText, size: avatarRadius),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    currentUser?.displayName ?? "Usuario",
+                    style: TextStyle(
+                      fontSize: nameFontSize,
+                      color: MaterialDrawer.lightText,
+                      fontWeight: FontWeight.w600,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.4),
+                          blurRadius: 4,
+                          offset: Offset(1, 1),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    currentUser?.email ?? "",
+                    style: TextStyle(
+                      fontSize: emailFontSize,
+                      color: MaterialDrawer.lightText.withOpacity(0.8),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(
-              child: Container(
-                color: Colors.white,
-                child: ListView(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: isWeb ? 8 : 4,
+              child: ListView(
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                children: [
+                  _buildMenuItem(
+                    context: context,
+                    icon: Icons.home_filled,
+                    title: "Inicio",
+                    route: '/home',
+                    isSelected: widget.currentPage == "Home",
                   ),
-                  children: [
-                    _buildMenuItem(
-                      context: context,
-                      icon: Icons.home_rounded,
-                      title: "Inicio",
-                      route: '/home',
-                      isSelected: widget.currentPage == "Home",
-                      isWeb: isWeb,
+                  _buildMenuItem(
+                    context: context,
+                    icon: Icons.history_rounded,
+                    title: "Historial",
+                    route: '/historial',
+                    isSelected: widget.currentPage == "Historial",
+                  ),
+                  _buildMenuItem(
+                    context: context,
+                    icon: Icons.person_rounded,
+                    title: "Perfil",
+                    route: '/profile',
+                    isSelected: widget.currentPage == "Perfil",
+                  ),
+                  _buildMenuItem(
+                    context: context,
+                    icon: Icons.settings_rounded,
+                    title: "Configuraciones",
+                    route: '/settings',
+                    isSelected: widget.currentPage == "Configuraciones",
+                  ),
+                  Divider(
+                    height: 40,
+                    indent: 20,
+                    endIndent: 20,
+                    color: MaterialDrawer.lightText.withOpacity(0.2),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.red.withOpacity(0.1),
+                      child: InkWell(
+                        onTap: () async {
+                          try {
+                            AuthService authService = AuthService();
+                            await authService.handleSignOut();
+                            Navigator.pushReplacementNamed(context, '/signin');
+                          } catch (error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error al cerrar sesión'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Icon(Icons.logout_rounded, 
+                                  color: MaterialDrawer.lightText.withOpacity(0.8)),
+                              SizedBox(width: 16),
+                              Text(
+                                "Cerrar Sesión",
+                                style: TextStyle(
+                                  color: MaterialDrawer.lightText.withOpacity(0.9),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: getResponsiveSize(screenSize.width * 0.04, 14.0, 16.0),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    _buildMenuItem(
-                      context: context,
-                      icon: Icons.history_rounded,
-                      title: "Historial",
-                      route: '/historial',
-                      isSelected: widget.currentPage == "Historial",
-                      isWeb: isWeb,
-                    ),
-                    _buildMenuItem(
-                      context: context,
-                      icon: Icons.person_rounded,
-                      title: "Perfil",
-                      route: '/profile',
-                      isSelected: widget.currentPage == "Perfil",
-                      isWeb: isWeb,
-                    ),
-                    _buildMenuItem(
-                      context: context,
-                      icon: Icons.settings_rounded,
-                      title: "Configuraciones",
-                      route: '/settings',
-                      isSelected: widget.currentPage == "Configuraciones",
-                      isWeb: isWeb,
-                    ),
-                    const Divider(height: 32),
-                    _buildMenuItem(
-                      context: context,
-                      icon: Icons.logout_rounded,
-                      title: "Cerrar Sesión",
-                      route: '/signin',
-                      isSelected: false,
-                      isWeb: isWeb,
-                      onTap: () async {
-                        try {
-                          AuthService authService = AuthService();
-                          await authService.handleSignOut();
-                          Navigator.pushReplacementNamed(context, '/signin');
-                        } catch (error) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Error al cerrar sesión'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -205,46 +210,58 @@ class _MaterialDrawerState extends State<MaterialDrawer> {
     required String title,
     required String route,
     required bool isSelected,
-    required bool isWeb,
-    VoidCallback? onTap,
   }) {
-    final double fontSize = getResponsiveSize(
-      MediaQuery.of(context).size.width * 0.04,
-      14.0,  // mínimo 14px
-      16.0   // máximo 16px
-    );
-
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: isSelected ? MaterialDrawer.lightBlue : Colors.transparent,
-      ),
-      child: ListTile(
-        dense: !isWeb, // Más compacto en móvil
-        leading: Icon(
-          icon,
-          color: isSelected ? MaterialDrawer.darkBlue : MaterialDrawer.primaryBlue,
-          size: isWeb ? 24 : 22,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? MaterialDrawer.darkBlue : Colors.black87,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            fontSize: fontSize,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Material(
+        color: isSelected 
+            ? MaterialDrawer.accentBlue.withOpacity(0.15)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: () {
+            if (widget.currentPage != title) {
+              Navigator.pushReplacementNamed(context, route);
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          hoverColor: MaterialDrawer.lightText.withOpacity(0.05),
+          splashColor: MaterialDrawer.lightText.withOpacity(0.1),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              border: isSelected
+                  ? Border.all(
+                      color: MaterialDrawer.accentBlue,
+                      width: 2,
+                    )
+                  : null,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected 
+                      ? MaterialDrawer.accentBlue
+                      : MaterialDrawer.lightText.withOpacity(0.9),
+                  size: 24,
+                ),
+                SizedBox(width: 16),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: getResponsiveSize(
+                        MediaQuery.of(context).size.width * 0.04, 14.0, 16.0),
+                    color: isSelected
+                        ? MaterialDrawer.accentBlue
+                        : MaterialDrawer.lightText.withOpacity(0.9),
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        onTap: onTap ?? () {
-          if (widget.currentPage != title) {
-            Navigator.pushReplacementNamed(context, route);
-          }
-        },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );

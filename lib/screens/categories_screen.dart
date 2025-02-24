@@ -3,12 +3,20 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_application_1/services/Archivo api_service.dart';
+import 'package:flutter_application_1/services/auth_service.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 
 void main() async {
   // Asegúrate de cargar las variables de entorno antes de correr la app.
   await dotenv.load(fileName: ".env");
   runApp(MyApp());
+
 }
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -252,7 +260,8 @@ class CategoriesScreen extends StatelessWidget {
     );
   }
 
-  void _navigateToCategory(BuildContext context, Map<String, dynamic> category) {
+  void _navigateToCategory(
+      BuildContext context, Map<String, dynamic> category) {
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -286,6 +295,7 @@ class CategoryDetailScreen extends StatefulWidget {
 }
 
 class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
+  String? _usuarioId;
   List<Gif> gifs = [];
   List<Gif> filteredGifs = [];
   String? selectedGif;
@@ -294,7 +304,22 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     fetchGifs();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final usuario = await ApiService.getUsuario(user.uid);
+        setState(() {
+          _usuarioId = usuario.id.toString();
+        });
+      }
+    } catch (e) {
+      print('Error obteniendo usuario: $e');
+    }
   }
 
   Future<void> fetchGifs() async {
@@ -304,7 +329,8 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
       List<dynamic> data = json.decode(response.body);
       setState(() {
         gifs = data.map((json) => Gif.fromJson(json)).toList();
-        filteredGifs = gifs.where((gif) => gif.categoria == getCategoryId()).toList();
+        filteredGifs =
+            gifs.where((gif) => gif.categoria == getCategoryId()).toList();
       });
     }
   }
@@ -323,43 +349,62 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         return 0;
     }
   }
+  // Modificar la definición del método
+  Future<void> _guardarEnHistorial(BuildContext context, int gifId) async {
+    if (_usuarioId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes iniciar sesión para guardar en el historial')),
+      );
+      return;
+    }
+
+    try {
+      await ApiService.guardarEnHistorial(int.parse(_usuarioId!), gifId);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error guardando en historial: $e')),
+      );
+    }
+  }
 
   void filterGifs(String query) {
     setState(() {
       filteredGifs = gifs.where((gif) {
         final categoryMatch = gif.categoria == getCategoryId();
-        final nameMatch = gif.nombre.toLowerCase().contains(query.toLowerCase());
+        final nameMatch =
+            gif.nombre.toLowerCase().contains(query.toLowerCase());
         return categoryMatch && nameMatch;
       }).toList();
 
       if (filteredGifs.isNotEmpty) {
         selectedGif = filteredGifs.first.archivo;
+          _guardarEnHistorial(context, filteredGifs.first.id);
       }
     });
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Color(0xFF16213E),
-    appBar: AppBar(
-      title: Text(
-        widget.categoryTitle,
-        style: TextStyle(color: Colors.white),  // Texto en blanco
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFF16213E),
+      appBar: AppBar(
+        title: Text(
+          widget.categoryTitle,
+          style: TextStyle(color: Colors.white), // Texto en blanco
+        ),
+        backgroundColor: Color(0xFF1A1A2E), // Fondo del AppBar
+        iconTheme: IconThemeData(color: Colors.white), // Flecha en blanco
       ),
-      backgroundColor: Color(0xFF1A1A2E),  // Fondo del AppBar
-      iconTheme: IconThemeData(color: Colors.white),  // Flecha en blanco
-    ),
-    body: Column(
-      children: [
-        _buildSearchBar(),
-        _buildInfoCard(),
-        _buildGifDisplayArea(),
-        _buildGifButtons(),
-      ],
-    ),
-  );
-}
+      body: Column(
+        children: [
+          _buildSearchBar(),
+          _buildInfoCard(),
+          _buildGifDisplayArea(),
+          _buildGifButtons(),
+        ],
+      ),
+    );
+  }
 
   Widget _buildSearchBar() {
     return Padding(
@@ -523,9 +568,8 @@ Widget build(BuildContext context) {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  selectedGif = gif.archivo;
-                });
+                setState(() => selectedGif = gif.archivo);
+                _guardarEnHistorial(context, gif.id);// Llamada al método de guardado
               },
               child: Text(
                 gif.nombre,

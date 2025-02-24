@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../models/category_model.dart'; // Importa el modelo de categoría
+import '../models/gif_model.dart'; // Importa el modelo de GIF
 
 class ApiService {
   final String baseUrl = dotenv.env['BASE_URL_DEV']!;
