@@ -1,13 +1,14 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/constants/Theme.dart';
 import 'package:flutter_application_1/widgets/navbar.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
-import 'package:flutter_application_1/widgets/photo-album.dart';
 import 'package:flutter_application_1/services/auth_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Profile extends StatefulWidget {
+  const Profile({Key? key}) : super(key: key);
+
   @override
   _ProfileState createState() => _ProfileState();
 }
@@ -15,7 +16,19 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final AuthService _authService = AuthService();
   String _userName = "Cargando...";
+  String? _userEmail;
   String? _userImage;
+
+  final List<Map<String, String>> youtubeLinks = [
+    {"title": "Saludos y formalidades", "url": "https://www.youtube.com/watch?v=rpfm69CaPWo"},
+    {
+      "title": "Números naturales del 1-100",
+      "url": "https://www.youtube.com/watch?v=gNNp3lXgxic&t=49s"
+    },
+    {"title": "Diás de la semana", "url": "https://www.youtube.com/watch?v=j-u5Ij9f5kI"},
+    {"title": "Mitos y verdades / sordos", "url": "https://www.youtube.com/watch?v=RkEEzo3WGlE"},
+    {"title": "Emociones 😍😟😠😀", "url": "https://www.youtube.com/watch?v=r6hRcL6bGZo"},
+  ];
 
   @override
   void initState() {
@@ -23,18 +36,39 @@ class _ProfileState extends State<Profile> {
     _loadUserInfo();
   }
 
-  void _loadUserInfo() {
-    final userInfo = _authService.getUserInfo();
-    if (userInfo != null) {
+  void _loadUserInfo() async {
+    final userInfo = await _authService.getUserInfo();
+    if (mounted) {
       setState(() {
-        _userName = userInfo['nombre'] ?? "Nombre desconocido";
-        _userImage = userInfo['foto']; // URL de la foto del perfil
+        _userName = userInfo?['nombre'] ?? "YOUR NAME";
+        _userEmail = userInfo?['correo'] ?? "YourName@gmail.com";
+        _userImage = userInfo?['foto'];
       });
-    } else {
-      setState(() {
-        _userName = "Usuario no autenticado";
-        _userImage = null;
-      });
+    }
+  }
+
+  Future<void> _launchURL(String url) async {
+    try {
+      if (!await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+        webViewConfiguration: const WebViewConfiguration(
+          enableJavaScript: true,
+          enableDomStorage: true,
+        ),
+      )) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("No se pudo abrir el enlace")),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${e.toString()}")),
+        );
+      }
     }
   }
 
@@ -43,168 +77,143 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: Navbar(
-        title: "Profile",
+        title: "Perfil",
         transparent: true,
       ),
-      backgroundColor: MaterialColors.bgColorScreen,
       drawer: MaterialDrawer(currentPage: "Profile"),
-      body: Stack(
-        children: [
-          // Imagen de fondo principal
-          Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                alignment: Alignment.topCenter,
-                image: _userImage != null && _userImage!.isNotEmpty
-                    ? CachedNetworkImageProvider(
-                        _userImage!,
-                        maxWidth: 1080, // Define una resolución más alta
-                        maxHeight: 1080,
-                      )
-                    : AssetImage('assets/default_profile.png') as ImageProvider,
-                fit: BoxFit.cover,
-              ),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondoLogin.png'),
+            fit: BoxFit.cover,
           ),
-          // Segunda imagen de fondo superpuesta
-          Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background_start.jpeg'),
-                fit: BoxFit.cover,
-                colorFilter:
-                    ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken),
-              ),
-            ),
-          ),
-          // Efecto de degradado
-          Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.center,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0),
-                  Colors.black.withOpacity(0.9),
-                ],
-              ),
-            ),
-          ),
-          // Información del usuario
-          Container(
-            margin: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height * 0.42, // Ajustado para subir más arriba
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 28),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Imagen del usuario con validación
-                if (_userImage != null && _userImage!.isNotEmpty)
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage: NetworkImage(_userImage!),
-                    onBackgroundImageError: (_, __) {
-                      setState(() {
-                        _userImage = null; // Imagen inválida
-                      });
-                    },
-                  )
-                else
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.grey[300],
-                    child:
-                        Icon(Icons.person, size: 40, color: Colors.grey[600]),
-                  ),
-                SizedBox(width: 16),
-                // Ajuste del nombre con Flexible
-                Flexible(
-                  child: Text(
-                    _userName,
-                    style: TextStyle(
-                      fontSize: 18, // Reducido para evitar desbordes
-                      color: Colors.white,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Tarjeta de información y estadísticas
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 8,
-                    blurRadius: 10,
-                    offset: Offset(0, 0),
-                  ),
-                ],
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(13.0),
-                  topRight: Radius.circular(13.0),
-                ),
-              ),
-              margin: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height * 0.58,
-              ),
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18.0,
-                  vertical: 12.0,
-                ),
+        ),
+        child: Column(
+          children: [
+            // Parte superior con información del perfil
+            Expanded(
+              flex: 5,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(top: 80),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    Stack(
+                      alignment: Alignment.bottomRight,
                       children: [
-                        Column(
-                          children: [
-                            Text("25",
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            SizedBox(height: 6),
-                            Text("Traducciones",
-                                style: TextStyle(color: MaterialColors.muted)),
-                          ],
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: CircleAvatar(
+                            radius: 80,
+                            backgroundColor: Colors.white,
+                            backgroundImage:
+                                _userImage != null && _userImage!.isNotEmpty
+                                    ? CachedNetworkImageProvider(_userImage!)
+                                    : const AssetImage(
+                                            'assets/img/default_profile.png')
+                                        as ImageProvider,
+                          ),
                         ),
-                        Column(
-                          children: [
-                            Text("2",
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            SizedBox(height: 6),
-                            Text("Idiomas",
-                                style: TextStyle(color: MaterialColors.muted)),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Icon(Icons.pin_drop, color: MaterialColors.muted),
-                            SizedBox(height: 6),
-                            Text("Estadísticas",
-                                style: TextStyle(color: MaterialColors.muted)),
-                          ],
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF30A9B9),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          child: const Icon(Icons.camera_alt,
+                              size: 12, color: Colors.white),
                         ),
                       ],
                     ),
-                    PhotoAlbum(),
+                    const SizedBox(height: 15),
+                    Text(
+                      _userName,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      _userEmail ?? "",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+
+            // Parte inferior con botones
+            Expanded(
+              flex: 5,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 25),
+                    Text(
+                          "Sigue aprendiendo con estos videos",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 12, 12, 12),
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                    // Espacio para los botones de YouTube
+                    const SizedBox(height: 50),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: youtubeLinks.length,
+                        padding: EdgeInsets.zero,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5.0),
+                            child: ElevatedButton(
+                              onPressed: () =>
+                                  _launchURL(youtubeLinks[index]['url']!),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 21, 83, 134),
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text(
+                                youtubeLinks[index]['title']!,
+                                style: const TextStyle(fontSize: 15),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

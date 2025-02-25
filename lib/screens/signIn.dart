@@ -166,7 +166,7 @@ class _LoginState extends State<Login> {
         decoration: MediaQuery.of(context).size.width <= 600
             ? BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/images/fondoManos.png"),
+                  image: AssetImage("assets/images/fondoLogin.png"),
                   fit: BoxFit.cover,
                 ),
               )
@@ -178,110 +178,126 @@ class _LoginState extends State<Login> {
                 ),
               ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                children: [
-                  SizedBox(height: 30),
-                  Text(
-                    'SignSpeak AI',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+          child: Center(
+            // Añadido Center para mejorar el centrado
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 32.0), // Aumentado el padding horizontal
+                child: Column(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Centrado vertical
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center, // Centrado horizontal
+                  children: [
+                    // Aumentado el espacio superior
+                    Container(
+                      height:
+                          300, // Aumentado el tamaño del contenedor del logo
+                      width: 500,
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/imagotipo.png',
+                          width: 500, // Aumentado el tamaño del logo
+                          height: 500,
+                        ),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    height: 120,
-                    width: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.sign_language,
-                        size: 60,
+                    SizedBox(height: 40), // Aumentado el espacio
+                    Text(
+                      'Inicia sesión',
+                      style: TextStyle(
+                        fontSize: 24, // Aumentado el tamaño de la fuente
+                        fontWeight: FontWeight.w400,
                         color: Colors.white,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Inicia sesión',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  if (_isLoading)
-                    CircularProgressIndicator()
-                  else
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255, 21, 83, 134),
-                              side: BorderSide(color: Colors.white),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                    SizedBox(height: 50), // Aumentado el espacio
+                    if (_isLoading)
+                      Container(
+                        height: 80, // Contenedor para el indicador de carga
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 4.0,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                      )
+                    else
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width *
+                                0.8, // Ancho responsivo
+                            height: 60, // Botones más altos
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromARGB(255, 21, 83, 134),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 24), // Padding interno
                               ),
-                            ),
-                            onPressed: () => _signInWithGoogle(context),
-                            icon: Image.asset(
-                              'assets/images/google.png',
-                              height: 24,
-                            ),
-                            label: Text(
-                              'Iniciar sesión con Google',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                              onPressed: () => _signInWithGoogle(context),
+                              icon: Image.asset(
+                                'assets/images/google.png',
+                                height: 28, // Icono más grande
+                              ),
+                              label: Text(
+                                'Iniciar sesión con Google',
+                                style: TextStyle(
+                                  fontSize: 18, // Texto más grande
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Colors.grey[700],
-                              side: BorderSide(color: Colors.white),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                          SizedBox(height: 30), // Más espacio entre botones
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width *
+                                0.8, // Ancho responsivo
+                            height: 60, // Botones más altos
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.grey[700],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 24), // Padding interno
                               ),
-                            ),
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(context, '/home');
-                            },
-                            icon: Icon(
-                              Icons.person_outline,
-                              color: Colors.white,
-                            ),
-                            label: Text(
-                              'Continuar como Invitado',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                    context, '/home');
+                              },
+                              icon: Icon(
+                                Icons.person_outline,
                                 color: Colors.white,
+                                size: 28, // Icono más grande
+                              ),
+                              label: Text(
+                                'Continuar como Invitado',
+                                style: TextStyle(
+                                  fontSize: 18, // Texto más grande
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  SizedBox(height: 30),
-                ],
+                        ],
+                      ),
+                    SizedBox(height: 60), // Más espacio al final
+                  ],
+                ),
               ),
             ),
           ),

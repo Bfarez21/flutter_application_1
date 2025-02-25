@@ -2,7 +2,7 @@ name: flutter_application_1
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-    
+
   audioplayers: 6.1.1
   scrollable_positioned_list: ^0.3.5
   carousel_slider: ^5.0.0
@@ -40,21 +40,19 @@ dependencies:
   image: ^3.0.1
   path_provider: ^2.0.2
   camera: ^0.10.0+3
-  google_sign_in: ^5.4.2  # Agregar el paquete google_sign_in
+  google_sign_in: ^5.4.2 # Agregar el paquete google_sign_in
   provider: ^6.1.2
-  firebase_core: ^2.17.5  # Versión actualizada
-  firebase_auth: ^4.5.0   # Si necesitas autenticación
+  firebase_core: ^2.17.5 # Versión actualizada
+  firebase_auth: ^4.5.0 # Si necesitas autenticación
   cloud_firestore: ^4.17.5 # Si usas Firestore
   firebase_auth_web: ^5.8.14 # Si usas web
-  tflite: ^1.1.2 # Dependencia para utilizar el modelo IA
   vertical_card_pager: ^1.4.0
   cached_network_image: ^3.3.0
   dio: ^5.3.2
   permission_handler: ^10.0.0
   http: ^1.0.0 #  Para realizar solicitudes HTTP a la API Django.
   intl: ^0.18.1
-
-
+  url_launcher: ^6.1.7
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -82,7 +80,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -101,7 +98,7 @@ flutter:
     - assets/gifs/diasSemana/
     - assets/gifs/colores/
     - assets/gifs/interrogativos/
-    - assets/gifs/profesiones/    
+    - assets/gifs/profesiones/
     - assets/images/
     - .env
     - assets/gifs/

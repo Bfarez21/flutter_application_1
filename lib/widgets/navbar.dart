@@ -78,11 +78,11 @@ class _NavbarState extends State<Navbar> {
     return Container(
       height: widget.searchBar
           ? (!categories
-              ? (tagsExist ? 160 : 130.0)
-              : (tagsExist ? 200.0 : 170.0))
+              ? (tagsExist ? 150 : 120.0)
+              : (tagsExist ? 180.0 : 150.0))
           : (!categories
-              ? (tagsExist ? 100.0 : 80.0)
-              : (tagsExist ? 150.0 : 120.0)),
+              ? (tagsExist ? 90.0 : 70.0)
+              : (tagsExist ? 140.0 : 110.0)),
       decoration: BoxDecoration(
         color: !widget.transparent ? widget.bgColor : Colors.transparent,
         boxShadow: [
@@ -97,9 +97,10 @@ class _NavbarState extends State<Navbar> {
       ),
       child: SafeArea(
         bottom: false,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,6 +130,7 @@ class _NavbarState extends State<Navbar> {
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Text(
                           widget.title,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: !widget.transparent
                                 ? (widget.bgColor == Colors.white
@@ -169,7 +171,7 @@ class _NavbarState extends State<Navbar> {
                             size: 22.0,
                           ),
                           // redirigo a otra ventana
-                           onPressed: () {
+                          onPressed: () {
                             Navigator.pushNamed(
                                 context, '/juegos'); // Usa la ruta nombrada
                           },

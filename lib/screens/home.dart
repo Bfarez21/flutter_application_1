@@ -30,39 +30,55 @@ class _HomeScreenState extends State<Home> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Container(
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.center, // Centro del degradado
-          radius: 1.0, // Radio del degradado ajustado
-          colors: [
-            Color(0xFF1F2642), // Color inicial
-            Color(0xFF060912), // Color final
-          ],
-          stops: [0.5, 1.5], // Posiciones de los colores
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent, // El fondo del Scaffold es transparente para mostrar el degradado
-        appBar: Navbar(
-          title: "Traductor",
-          searchBar: false,
-        ),
-        drawer: MaterialDrawer(currentPage: "Home"),
-        body: Column(
-          children: [
-            SelectionBar(toggleLayout: toggleLayout, isReversed: isReversed),
-            SizedBox(height: 1.0),
-            Expanded(
-              child: isReversed ? TextToSign() : SignToText(),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+  Widget build(BuildContext context) {
+    // Obtener las dimensiones de la pantalla
+    final screenSize = MediaQuery.of(context).size;
+    final padding = MediaQuery.of(context).padding;
 
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.center,
+            radius: 1.0,
+            colors: [
+              Color(0xFF1F2642),
+              Color.fromRGBO(0, 0, 0, 1),
+            ],
+            stops: [0.5, 1.5],
+          ),
+        ),
+        child: SafeArea(
+          // Añadido SafeArea para evitar el overflow con las áreas del sistema
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: PreferredSize(
+              // PreferredSize para controlar la altura del AppBar
+              preferredSize: Size.fromHeight(kToolbarHeight),
+              child: Navbar(
+                title: "Traductor",
+                searchBar: false,
+              ),
+            ),
+            drawer: MaterialDrawer(currentPage: "Home"),
+            body: Column(
+              children: [
+                // Envolver SelectionBar en un contenedor con tamaño adaptable
+                Container(
+                  height: screenSize.height *
+                      0.08, // Altura adaptable basada en la pantalla
+                  child: SelectionBar(
+                      toggleLayout: toggleLayout, isReversed: isReversed),
+                ),
+                // Usar Expanded para que el contenido principal se adapte al espacio disponible
+                Expanded(
+                  child: isReversed ? TextToSign() : SignToText(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
