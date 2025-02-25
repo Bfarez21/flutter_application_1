@@ -4,6 +4,9 @@ import 'package:flutter_application_1/services/Archivo api_service.dart';
 import 'package:flutter_application_1/models/historial_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
+import 'package:flutter_application_1/constants/Theme.dart';
+import 'package:flutter_application_1/widgets/navbar.dart';
+import 'package:flutter_application_1/widgets/drawer.dart'; // Asegúrate de tener este import
 
 class HistorialView extends StatefulWidget {
   const HistorialView({Key? key}) : super(key: key);
@@ -16,8 +19,9 @@ class _HistorialViewState extends State<HistorialView> {
   late Future<List<Historial>> _historialFuture;
   List<Historial> _historial = [];
   List<Historial> _filteredHistorial = [];
-  final Color _backgroundColor = const Color.fromARGB(255, 18, 3, 62);
-  final Color _cardColor = const Color.fromARGB(255, 203, 203, 215)!;
+  final Color _backgroundColor = const Color(0xFFF5F5F5);
+  final Color _primaryColor = const Color(0xFF1A237E);
+  final Color _accentColor = const Color(0xFF534BAE);
 
   @override
   void initState() {
@@ -37,14 +41,14 @@ class _HistorialViewState extends State<HistorialView> {
       });
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error cargando historial: ${utf8.decode(error.toString().codeUnits)}')),
+        SnackBar(content: Text('Error cargando historial: $error')),
       );
     });
   }
 
   String _formatDate(String dateString) {
     try {
-      DateTime date = DateTime.parse(dateString);
+      DateTime date = DateTime.parse(dateString).toLocal();
       return DateFormat('dd MMM yyyy - HH:mm').format(date);
     } catch (e) {
       return dateString;
@@ -53,10 +57,17 @@ class _HistorialViewState extends State<HistorialView> {
 
   void _filterHistorial(String query) {
     setState(() {
-      _filteredHistorial = _historial.where((h) => 
-        utf8.decode(h.gifNombre.codeUnits).toLowerCase().contains(query.toLowerCase()) || 
-        utf8.decode(h.categoriaNombre.codeUnits).toLowerCase().contains(query.toLowerCase())
-      ).toList();
+      _filteredHistorial = _historial
+          .where((h) =>
+              utf8
+                  .decode(h.gifNombre.runes.toList())
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              utf8
+                  .decode(h.categoriaNombre.runes.toList())
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
+          .toList();
     });
   }
 
@@ -65,14 +76,13 @@ class _HistorialViewState extends State<HistorialView> {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(20),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.blue.withOpacity(0.2),
+                color: Colors.black.withOpacity(0.2),
                 blurRadius: 15,
                 offset: const Offset(0, 10),
               ),
@@ -84,9 +94,9 @@ class _HistorialViewState extends State<HistorialView> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Vista previa del GIF',
+                  'Vista de la seña',
                   style: TextStyle(
-                    color: Colors.blue[900],
+                    color: _primaryColor,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -105,9 +115,7 @@ class _HistorialViewState extends State<HistorialView> {
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.blue[900],
-                        ),
+                        child: CircularProgressIndicator(color: _primaryColor),
                       );
                     },
                     errorBuilder: (context, error, stackTrace) {
@@ -119,7 +127,7 @@ class _HistorialViewState extends State<HistorialView> {
                             SizedBox(height: 10),
                             Text(
                               'Error al cargar el GIF',
-                              style: TextStyle(color: Colors.blue[900]),
+                              style: TextStyle(color: _primaryColor),
                             ),
                           ],
                         ),
@@ -133,7 +141,7 @@ class _HistorialViewState extends State<HistorialView> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   'Cerrar',
-                  style: TextStyle(color: Colors.blue[900], fontSize: 16),
+                  style: TextStyle(color: _primaryColor, fontSize: 16),
                 ),
               ),
             ],
@@ -159,7 +167,7 @@ class _HistorialViewState extends State<HistorialView> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: ${utf8.decode(e.toString().codeUnits)}'),
+          content: Text('Error: $e'),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -183,14 +191,20 @@ class _HistorialViewState extends State<HistorialView> {
             ),
             Text(
               DateFormat('dd MMM yyyy').format(DateTime.now()),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 12,
               ),
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF0D47A1),
+        backgroundColor: _primaryColor,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
@@ -199,114 +213,108 @@ class _HistorialViewState extends State<HistorialView> {
               delegate: HistorialSearchDelegate(
                 _filteredHistorial,
                 context,
-                _deleteHistorial, // Pasa la función de callback
+                _deleteHistorial,
+                _primaryColor,
+                _accentColor,
               ),
             ),
           ),
         ],
       ),
+      // ESTA ES LA PARTE CRÍTICA QUE FALTABA
+      drawer: MaterialDrawer(currentPage: "Historial"),
       backgroundColor: _backgroundColor,
       body: FutureBuilder<List<Historial>>(
         future: _historialFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(
-                color: Colors.blue[900],
-              ),
-            );
+            return Center(child: CircularProgressIndicator(color: _primaryColor));
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
                 'Error al cargar el historial',
-                style: TextStyle(
-                  color: Colors.blue[900],
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: _primaryColor, fontSize: 16),
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Text(
                 'No hay registros en el historial',
-                style: TextStyle(
-                  color: Colors.blue[900],
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: _primaryColor, fontSize: 16),
               ),
             );
           } else {
-            return ListView.builder(
+            return ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: _filteredHistorial.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final historial = _filteredHistorial[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: _cardColor,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blue.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _formatDate(historial.fechaHora),
-                              style: TextStyle(
-                                color: Colors.blue[900],
-                                fontSize: 12,
-                                fontWeight: FontWeight.w300,
+                return Material(
+                  elevation: 2,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _formatDate(historial.fechaHora),
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.visibility, color: Colors.blue[900]),
-                                  onPressed: () => _showGifDialog(context, historial.gifUrl),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => _confirmDelete(context, historial.id, index),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Center(
-                          child: Text(
-                            utf8.decode(historial.gifNombre.codeUnits),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.visibility,
+                                        color: _accentColor, size: 22),
+                                    onPressed: () => _showGifDialog(
+                                        context, historial.gifUrl),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.redAccent, size: 22),
+                                    onPressed: () => _confirmDelete(
+                                        context, historial.id, index),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            utf8.decode(historial.gifNombre.runes.toList()),
                             style: TextStyle(
-                              color: Colors.blue[900],
-                              fontSize: 18,
+                              color: _primaryColor,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Center(
-                          child: Text(
-                            'Categoría: ${utf8.decode(historial.categoriaNombre.codeUnits)}',
+                          const SizedBox(height: 4),
+                          Text(
+                            'Categoría: ${utf8.decode(historial.categoriaNombre.runes.toList())}',
                             style: TextStyle(
-                              color: Colors.blue[700],
+                              color: _accentColor,
                               fontSize: 14,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -345,19 +353,23 @@ class _HistorialViewState extends State<HistorialView> {
 class HistorialSearchDelegate extends SearchDelegate {
   final List<Historial> historial;
   final BuildContext parentContext;
-  final Function(int, int) onDeleteHistorial; // Callback para eliminación
+  final Function(int, int) onDeleteHistorial;
+  final Color primaryColor;
+  final Color accentColor;
 
   HistorialSearchDelegate(
     this.historial,
     this.parentContext,
-    this.onDeleteHistorial, // Recibe el callback
+    this.onDeleteHistorial,
+    this.primaryColor,
+    this.accentColor,
   );
 
   @override
   ThemeData appBarTheme(BuildContext context) {
     return Theme.of(context).copyWith(
-      appBarTheme: const AppBarTheme(
-        color: Color(0xFF0D47A1),
+      appBarTheme: AppBarTheme(
+        color: primaryColor,
       ),
       inputDecorationTheme: const InputDecorationTheme(
         hintStyle: TextStyle(color: Colors.white70),
@@ -371,17 +383,17 @@ class HistorialSearchDelegate extends SearchDelegate {
 
   @override
   List<Widget> buildActions(BuildContext context) => [
-    IconButton(
-      icon: const Icon(Icons.clear, color: Colors.white),
-      onPressed: () => query = '',
-    ),
-  ];
+        IconButton(
+          icon: const Icon(Icons.clear, color: Colors.white),
+          onPressed: () => query = '',
+        ),
+      ];
 
   @override
   Widget buildLeading(BuildContext context) => IconButton(
-    icon: const Icon(Icons.arrow_back, color: Colors.white),
-    onPressed: () => close(context, null),
-  );
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => close(context, null),
+      );
 
   @override
   Widget buildResults(BuildContext context) => _buildResults(context);
@@ -390,83 +402,92 @@ class HistorialSearchDelegate extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) => _buildResults(context);
 
   Widget _buildResults(BuildContext context) {
-    final results = historial.where((h) => 
-      utf8.decode(h.gifNombre.codeUnits).toLowerCase().contains(query.toLowerCase()) ||
-      utf8.decode(h.categoriaNombre.codeUnits).toLowerCase().contains(query.toLowerCase()))
-      .toList();
+    final results = historial
+        .where((h) =>
+            utf8
+                .decode(h.gifNombre.runes.toList())
+                .toLowerCase()
+                .contains(query.toLowerCase()) ||
+            utf8
+                .decode(h.categoriaNombre.runes.toList())
+                .toLowerCase()
+                .contains(query.toLowerCase()))
+        .toList();
 
     return Container(
-      color: const Color(0xFFE3F2FD),
-      child: ListView.builder(
+      color: Colors.grey.shade50,
+      child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: results.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final historial = results[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.blue.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _formatDate(historial.fechaHora),
-                        style: TextStyle(
-                          color: Colors.blue[900],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w300,
+          return Material(
+            elevation: 2,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _formatDate(historial.fechaHora),
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.visibility, color: Colors.blue[900]),
-                            onPressed: () => _showGifDialog(context, historial.gifUrl),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _confirmDelete(context, historial.id, index),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Center(
-                    child: Text(
-                      utf8.decode(historial.gifNombre.codeUnits),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.visibility,
+                                  color: accentColor, size: 22),
+                              onPressed: () =>
+                                  _showGifDialog(context, historial.gifUrl),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.redAccent, size: 22),
+                              onPressed: () =>
+                                  _confirmDelete(context, historial.id, index),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      utf8.decode(historial.gifNombre.runes
+                          .toList()), // Manejo de tildes
                       style: TextStyle(
-                        color: Colors.blue[900],
-                        fontSize: 18,
+                        color: primaryColor,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Center(
-                    child: Text(
-                      'Categoría: ${utf8.decode(historial.categoriaNombre.codeUnits)}',
+                    const SizedBox(height: 4),
+                    Text(
+                      'Categoría: ${utf8.decode(historial.categoriaNombre.runes.toList())}', // Manejo de tildes
                       style: TextStyle(
-                        color: Colors.blue[700],
+                        color: accentColor,
                         fontSize: 14,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -498,7 +519,7 @@ class HistorialSearchDelegate extends SearchDelegate {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              onDeleteHistorial(historialId, index); // Llama al callback
+              onDeleteHistorial(historialId, index);
             },
             child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
           ),
@@ -508,6 +529,8 @@ class HistorialSearchDelegate extends SearchDelegate {
   }
 
   void _showGifDialog(BuildContext context, String gifUrl) {
+    print("URL del GIF: $gifUrl");
+    print("Intentando cargar GIF desde: $gifUrl"); // Depuración
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -531,7 +554,7 @@ class HistorialSearchDelegate extends SearchDelegate {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Vista previa del GIF',
+                  'Vista de seña',
                   style: TextStyle(
                     color: Colors.blue[900],
                     fontSize: 20,

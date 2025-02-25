@@ -56,9 +56,34 @@ class CategoriesScreen extends StatelessWidget {
       "type": "diassemana"
     },
     {
+      "img": AssetImage("assets/images/familia.jpg"),
+      "title": "Familia",
+      "type": "familia"
+    },
+    {
+      "img": AssetImage("assets/images/frasescomunes.jpg"),
+      "title": "Frases comunes",
+      "type": "frases"
+       },
+    {
+      "img": AssetImage("assets/images/letras.jpg"),
+      "title": "Letras",
+      "type": "letras"
+    },
+    {
+      "img": AssetImage("assets/images/palabras.png"),
+      "title": "Palabras",
+      "type": "palabras"
+    },
+    {
       "img": AssetImage("assets/images/preguntas.jpg"),
       "title": "Preguntas",
       "type": "preguntas"
+    },
+    {
+      "img": AssetImage("assets/images/saludos.jpg"),
+      "title": "Saludos y cortesias",
+      "type": "saludos"
     },
     {
       "img": AssetImage("assets/images/profesiones.jpg"),
@@ -322,27 +347,45 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
     }
   }
 
-  Future<void> fetchGifs() async {
-    final baseUrl = dotenv.env['BASE_URL_DEV'];
-    final response = await http.get(Uri.parse('$baseUrl/api/gifs/'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      setState(() {
-        gifs = data.map((json) => Gif.fromJson(json)).toList();
-        filteredGifs =
-            gifs.where((gif) => gif.categoria == getCategoryId()).toList();
-      });
-    }
+  // Modificar el método fetchGifs
+Future<void> fetchGifs() async {
+  final baseUrl = dotenv.env['BASE_URL_DEV'];
+  final response = await http.get(Uri.parse('$baseUrl/api/gifs/'));
+  
+  if (response.statusCode == 200) {
+    // Decodificar usando UTF-8 explícitamente
+    final String responseBody = utf8.decode(response.bodyBytes);
+    List<dynamic> data = json.decode(responseBody);
+    
+    setState(() {
+      gifs = data.map((json) => Gif.fromJson(json)).toList();
+      filteredGifs = gifs.where((gif) => gif.categoria == getCategoryId()).toList();
+    });
   }
+}
 
   int getCategoryId() {
     switch (widget.categoryType.toLowerCase()) {
+      case 'familia':
+        return 5;
+      case 'preguntas':
+        return 11;  
+      case 'profesiones':
+        return 8;  
+      case 'saludos':
+        return 12;  
+      case 'frases':
+        return 6;
+      case 'letras':
+        return 7;
+      case 'palabras':
+        return 10;    
       case 'numeros':
-        return 3;
+        return 9;
       case 'colores':
-        return 1;
-      case 'comidabenbidas':
         return 2;
+      case 'comidabenbidas':
+        return 3;
       case 'diassemana':
         return 4;
       default:
