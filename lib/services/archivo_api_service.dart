@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/category_model.dart'; // Importa el modelo de categoría
-import '../models/gif_model.dart'; // Importa el modelo de GIF
+import '../models/gif_model.dart'; // Importa el modelo de GIF+ffffff+f
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
